@@ -1,0 +1,32 @@
+{
+    "name": "phbsis/htr",
+    "description": "A simple Framework to streamline web projects",
+    "homepage": "https://github.com/br-monteiro/htr",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Edson B S Monteiro",
+            "email": "bruno.monteirodg@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.0",
+        "phbsis/htr-core": "v1.0.0"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "App/"
+        }
+    },
+    "scripts": {
+        "make-entities": [
+            "./vendor/bin/doctrine orm:convert-mapping --namespace='App\\Entities\\' --force --from-database  annotation ./",
+            "php ./vendor/bin/processingEntities"
+        ]
+    }
+}

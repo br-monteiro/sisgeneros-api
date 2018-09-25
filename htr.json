@@ -1,0 +1,12 @@
+{
+    "project": {
+        "name": "SisGêneros API",
+        "authors": [
+            {
+                "name": "Edson B S Monteiro",
+                "email": "bruno.monteirodg@gmail.com"
+            }
+        ]
+    },
+    "devmode": true
+}
