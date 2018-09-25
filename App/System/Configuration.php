@@ -9,7 +9,7 @@ class Configuration
     // App configs
     const APP_VERSION = '0.0.1';
     // WARNING: CHANGE THIS CONTENT
-    const SALT_KEY = 'C203DFCDFF90245C838C18082455B9BEDD023EB726001292053849394CE44304';
+    const SALT_KEY = 'F342B8D84BD071DBFAB4A01FD4E54A38C18082455B9BEDD023096F04AE5B';
     const PATH_ENTITIES = 'App/Entities';
     const JSON_SCHEMA = '../App/json-schema/';
     const EXPIRATE_TOKEN = 2592000; // 30 days
@@ -20,11 +20,11 @@ class Configuration
         'Authorization'
     ];
     // Deployment
-    const HOST_DEV = 'localhost';
+    const HOST_DEV = 'dev.api.ceimbe.mb';
     const DATABASE_CONFIGS_DEV = [
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
-        'dbname' => 'test',
+        'dbname' => 'sisgeneros_mb',
         'user' => 'root',
         'password' => 'mysql-server-dev',
     ];
