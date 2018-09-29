@@ -150,15 +150,9 @@ class MilitaryOrganizationsModel extends AbstractModel
                             'users'
                         ])
                         ->withAttribute([
-                            'munitionManager' => function($e) {
-                                return $e->getMunitionManager()->getFullName();
-                            },
-                            'fiscalAgent' => function($e) {
-                                return $e->getFiscalAgent()->getFullName();
-                            },
-                            'munitionFiel' => function($e) {
-                                return $e->getMunitionFiel()->getFullName();
-                            }
+                            'munitionManager' => $entity->getMunitionManager()->getFullName(),
+                            'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
+                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
                         ])
                         ->run()
                     ], 201);
@@ -223,15 +217,9 @@ class MilitaryOrganizationsModel extends AbstractModel
                             'users'
                         ])
                         ->withAttribute([
-                            'munitionManager' => function($e) {
-                                return $e->getMunitionManager()->getFullName();
-                            },
-                            'fiscalAgent' => function($e) {
-                                return $e->getFiscalAgent()->getFullName();
-                            },
-                            'munitionFiel' => function($e) {
-                                return $e->getMunitionFiel()->getFullName();
-                            }
+                            'munitionManager' => $entity->getMunitionManager()->getFullName(),
+                            'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
+                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
                         ])
                         ->run()
                     ], 200);
