@@ -12,5 +12,7 @@ class Router
         TestsRoute::setUp($app);
         // users routes
         UsersRoute::setUp($app);
+        // military organizations
+        MilitaryOrganizationsRoute::setUp($app);
     }
 }
