@@ -25,7 +25,7 @@ class Auth implements EntityInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="username", type="string", length=45, nullable=false)
+     * @ORM\Column(name="username", type="string", length=32, nullable=false)
      */
     private $username;
 
