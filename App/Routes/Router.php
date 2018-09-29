@@ -10,5 +10,7 @@ class Router
     {
         // routes for test
         TestsRoute::setUp($app);
+        // users routes
+        UsersRoute::setUp($app);
     }
 }

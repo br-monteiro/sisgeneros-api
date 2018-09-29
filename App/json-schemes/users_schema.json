@@ -1,0 +1,35 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 45
+        },
+        "fullName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100
+        },
+        "militaryPost": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100
+        },
+        "nip": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "^\\d{2}\\.\\d{4}\\.\\d{2}$"
+        },
+        "active": {
+            "type": "string",
+            "pattern": "^yes|no$"
+        },
+        "isMaster": {
+            "type": "string",
+            "pattern": "^yes|no$"
+        }
+    },
+    "required": ["name", "fullName", "militaryPost", "nip"]
+}
