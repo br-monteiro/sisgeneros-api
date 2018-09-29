@@ -8,7 +8,6 @@ use Slim\Http\Response;
 use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use App\System\Configuration as cfg;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
 use App\Entities\MilitaryOrganizations;
