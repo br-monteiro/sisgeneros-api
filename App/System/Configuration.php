@@ -11,7 +11,7 @@ class Configuration
     // WARNING: CHANGE THIS CONTENT
     const SALT_KEY = 'F342B8D84BD071DBFAB4A01FD4E54A38C18082455B9BEDD023096F04AE5B';
     const PATH_ENTITIES = 'App/Entities';
-    const JSON_SCHEMA = '../App/json-schema/';
+    const JSON_SCHEMA = '../App/json-schemes/';
     const EXPIRATE_TOKEN = 2592000; // 30 days
     const ALLOW_CORS = [];
     const ALLOW_HEADERS = [
