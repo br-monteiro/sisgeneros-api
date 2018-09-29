@@ -14,5 +14,7 @@ class Router
         UsersRoute::setUp($app);
         // military organizations
         MilitaryOrganizationsRoute::setUp($app);
+        // suppliers
+        SuppliersRoute::setUp($app);
     }
 }
