@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use HTR\Interfaces\Entities\EntityInterface;
 
 /**
- * StokSabm
+ * StockControlsItems
  *
- * @ORM\Table(name="stok_sabm", uniqueConstraints={@ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"}), @ORM\UniqueConstraint(name="pi_identifier_UNIQUE", columns={"pi_identifier"})}, indexes={@ORM\Index(name="fk_stok_sabm_military_organizations1_idx", columns={"military_organizations_id"})})
+ * @ORM\Table(name="stock_controls_items", indexes={@ORM\Index(name="fk_stoke_entries_items_stok_entries1_idx", columns={"stok_entries_id"})})
  * @ORM\Entity
  */
-class StokSabm implements EntityInterface
+class StockControlsItems implements EntityInterface
 {
     /**
      * @var integer
@@ -46,19 +46,19 @@ class StokSabm implements EntityInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="pi_identifier", type="string", length=20, nullable=false)
+     * @ORM\Column(name="pi_identifier", type="string", length=20, nullable=true)
      */
     private $piIdentifier;
 
     /**
-     * @var \App\Entities\MilitaryOrganizations
+     * @var \App\Entities\StockControls
      *
-     * @ORM\ManyToOne(targetEntity="App\Entities\MilitaryOrganizations")
+     * @ORM\ManyToOne(targetEntity="App\Entities\StockControls")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="military_organizations_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="stok_entries_id", referencedColumnName="id")
      * })
      */
-    private $militaryOrganizations;
+    private $stokEntries;
 
     public function getId()
     {
@@ -85,9 +85,9 @@ class StokSabm implements EntityInterface
         return $this->piIdentifier;
     }
 
-    public function getMilitaryOrganizations()
+    public function getStokEntries()
     {
-        return $this->militaryOrganizations;
+        return $this->stokEntries;
     }
 
     public function setName($name)
@@ -114,9 +114,9 @@ class StokSabm implements EntityInterface
         return $this;
     }
 
-    public function setMilitaryOrganizations($militaryOrganizations)
+    public function setStokEntries($stokEntries)
     {
-        $this->militaryOrganizations = $militaryOrganizations;
+        $this->stokEntries = $stokEntries;
         return $this;
     }
 }

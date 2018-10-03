@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use HTR\Interfaces\Entities\EntityInterface;
 
 /**
- * StokEntriesOuts
+ * StockControls
  *
- * @ORM\Table(name="stok_entries_outs", uniqueConstraints={@ORM\UniqueConstraint(name="fiscal_document_UNIQUE", columns={"fiscal_document"})}, indexes={@ORM\Index(name="fk_stok_entries_military_organizations1_idx", columns={"military_organizations_id"}), @ORM\Index(name="fk_stok_entries_users1_idx", columns={"authorizer_user"}), @ORM\Index(name="fk_stok_entries_users2_idx", columns={"requester_user"}), @ORM\Index(name="fk_stok_entries_outs_military_organizations1_idx", columns={"military_organizations_origin"}), @ORM\Index(name="fk_stok_entries_outs_military_organizations2_idx", columns={"military_organizations_destiny"}), @ORM\Index(name="fk_stok_entries_outs_users1_idx", columns={"receiver_user"})})
+ * @ORM\Table(name="stock_controls", uniqueConstraints={@ORM\UniqueConstraint(name="fiscal_document_UNIQUE", columns={"fiscal_document"})}, indexes={@ORM\Index(name="fk_stok_entries_military_organizations1_idx", columns={"military_organizations_id"}), @ORM\Index(name="fk_stok_entries_users1_idx", columns={"authorizer_user"}), @ORM\Index(name="fk_stok_entries_users2_idx", columns={"requester_user"}), @ORM\Index(name="fk_stok_entries_outs_military_organizations1_idx", columns={"military_organizations_origin"}), @ORM\Index(name="fk_stok_entries_outs_military_organizations2_idx", columns={"military_organizations_destiny"}), @ORM\Index(name="fk_stok_entries_outs_users1_idx", columns={"receiver_user"})})
  * @ORM\Entity
  */
-class StokEntriesOuts implements EntityInterface
+class StockControls implements EntityInterface
 {
     /**
      * @var integer
@@ -39,9 +39,9 @@ class StokEntriesOuts implements EntityInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="stok_type", type="string", length=6, nullable=false)
+     * @ORM\Column(name="stock_type", type="string", length=6, nullable=false)
      */
-    private $stokType;
+    private $stockType;
 
     /**
      * @var string
@@ -153,9 +153,9 @@ class StokEntriesOuts implements EntityInterface
         return $this->status;
     }
 
-    public function getStokType()
+    public function getStockType()
     {
-        return $this->stokType;
+        return $this->stockType;
     }
 
     public function getFiscalDocument()
@@ -225,9 +225,9 @@ class StokEntriesOuts implements EntityInterface
         return $this;
     }
 
-    public function setStokType($stokType)
+    public function setStockType($stockType)
     {
-        $this->stokType = $stokType;
+        $this->stockType = $stockType;
         return $this;
     }
 

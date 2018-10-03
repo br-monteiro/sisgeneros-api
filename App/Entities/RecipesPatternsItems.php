@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use HTR\Interfaces\Entities\EntityInterface;
 
 /**
- * RecipesPatternsTems
+ * RecipesPatternsItems
  *
- * @ORM\Table(name="recipes_patterns_tems", indexes={@ORM\Index(name="fk_recipes_items_recipes1_idx", columns={"recipes_id"})})
+ * @ORM\Table(name="recipes_patterns_items", indexes={@ORM\Index(name="fk_recipes_items_recipes1_idx", columns={"recipes_id"})})
  * @ORM\Entity
  */
-class RecipesPatternsTems implements EntityInterface
+class RecipesPatternsItems implements EntityInterface
 {
     /**
      * @var integer

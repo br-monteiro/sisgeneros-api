@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use HTR\Interfaces\Entities\EntityInterface;
 
 /**
- * StokMilitaryOrganizations
+ * StockSabm
  *
- * @ORM\Table(name="stok_military_organizations", indexes={@ORM\Index(name="fk_stok_items_military_organizations1_idx", columns={"military_organizations_id"})})
+ * @ORM\Table(name="stock_sabm", uniqueConstraints={@ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"}), @ORM\UniqueConstraint(name="pi_identifier_UNIQUE", columns={"pi_identifier"})}, indexes={@ORM\Index(name="fk_stok_sabm_military_organizations1_idx", columns={"military_organizations_id"})})
  * @ORM\Entity
  */
-class StokMilitaryOrganizations implements EntityInterface
+class StockSabm implements EntityInterface
 {
     /**
      * @var integer
@@ -44,6 +44,13 @@ class StokMilitaryOrganizations implements EntityInterface
     private $quantity;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="pi_identifier", type="string", length=20, nullable=false)
+     */
+    private $piIdentifier;
+
+    /**
      * @var \App\Entities\MilitaryOrganizations
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\MilitaryOrganizations")
@@ -73,6 +80,11 @@ class StokMilitaryOrganizations implements EntityInterface
         return $this->quantity;
     }
 
+    public function getPiIdentifier()
+    {
+        return $this->piIdentifier;
+    }
+
     public function getMilitaryOrganizations()
     {
         return $this->militaryOrganizations;
@@ -93,6 +105,12 @@ class StokMilitaryOrganizations implements EntityInterface
     public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
+        return $this;
+    }
+
+    public function setPiIdentifier($piIdentifier)
+    {
+        $this->piIdentifier = $piIdentifier;
         return $this;
     }
 
