@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * Requests
  *
- * @ORM\Table(name="requests", indexes={@ORM\Index(name="fk_requests_suppliers1_idx", columns={"suppliers_id"}), @ORM\Index(name="fk_requests_military_organizations1_idx", columns={"military_organizations_id"})})
+ * @ORM\Table(name="requests", indexes={@ORM\Index(name="fk_requests_suppliers1_idx", columns={"suppliers_id"}), @ORM\Index(name="fk_requests_military_organizations1_idx", columns={"military_organizations_id"}), @ORM\Index(name="fk_requests_users1_idx", columns={"authorizer_user"}), @ORM\Index(name="fk_requests_users2_idx", columns={"requester_user"}), @ORM\Index(name="fk_requests_users3_idx", columns={"receiver_user"})})
  * @ORM\Entity
  */
 class Requests implements EntityInterface
@@ -39,9 +39,16 @@ class Requests implements EntityInterface
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date", type="date", nullable=false)
+     * @ORM\Column(name="created_at", type="date", nullable=false)
      */
-    private $date;
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="date", nullable=false)
+     */
+    private $updatedAt;
 
     /**
      * @var string
@@ -182,6 +189,36 @@ class Requests implements EntityInterface
      */
     private $suppliers;
 
+    /**
+     * @var \App\Entities\Users
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entities\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="authorizer_user", referencedColumnName="id")
+     * })
+     */
+    private $authorizerUser;
+
+    /**
+     * @var \App\Entities\Users
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entities\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="requester_user", referencedColumnName="id")
+     * })
+     */
+    private $requesterUser;
+
+    /**
+     * @var \App\Entities\Users
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entities\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="receiver_user", referencedColumnName="id")
+     * })
+     */
+    private $receiverUser;
+
     public function getId()
     {
         return $this->id;
@@ -197,9 +234,14 @@ class Requests implements EntityInterface
         return $this->year;
     }
 
-    public function getDate()
+    public function getCreatedAt()
     {
-        return $this->date;
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
     }
 
     public function getMunitionManager()
@@ -297,6 +339,21 @@ class Requests implements EntityInterface
         return $this->suppliers;
     }
 
+    public function getAuthorizerUser()
+    {
+        return $this->authorizerUser;
+    }
+
+    public function getRequesterUser()
+    {
+        return $this->requesterUser;
+    }
+
+    public function getReceiverUser()
+    {
+        return $this->receiverUser;
+    }
+
     public function setNumber($number)
     {
         $this->number = $number;
@@ -309,9 +366,15 @@ class Requests implements EntityInterface
         return $this;
     }
 
-    public function setDate($date)
+    public function setCreatedAt($createdAt)
     {
-        $this->date = $date;
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
@@ -426,6 +489,24 @@ class Requests implements EntityInterface
     public function setSuppliers($suppliers)
     {
         $this->suppliers = $suppliers;
+        return $this;
+    }
+
+    public function setAuthorizerUser($authorizerUser)
+    {
+        $this->authorizerUser = $authorizerUser;
+        return $this;
+    }
+
+    public function setRequesterUser($requesterUser)
+    {
+        $this->requesterUser = $requesterUser;
+        return $this;
+    }
+
+    public function setReceiverUser($receiverUser)
+    {
+        $this->receiverUser = $receiverUser;
         return $this;
     }
 }
