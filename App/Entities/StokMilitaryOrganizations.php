@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use HTR\Interfaces\Entities\EntityInterface;
 
 /**
- * StokItems
+ * StokMilitaryOrganizations
  *
- * @ORM\Table(name="stok_items", indexes={@ORM\Index(name="fk_stok_items_military_organizations1_idx", columns={"military_organizations_id"})})
+ * @ORM\Table(name="stok_military_organizations", indexes={@ORM\Index(name="fk_stok_items_military_organizations1_idx", columns={"military_organizations_id"})})
  * @ORM\Entity
  */
-class StokItems implements EntityInterface
+class StokMilitaryOrganizations implements EntityInterface
 {
     /**
      * @var integer
@@ -39,7 +39,7 @@ class StokItems implements EntityInterface
     /**
      * @var float
      *
-     * @ORM\Column(name="quantity", type="float", precision=5, scale=2, nullable=false)
+     * @ORM\Column(name="quantity", type="float", precision=9, scale=2, nullable=false)
      */
     private $quantity;
 
