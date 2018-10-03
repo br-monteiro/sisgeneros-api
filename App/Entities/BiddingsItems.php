@@ -46,14 +46,14 @@ class BiddingsItems implements EntityInterface
     /**
      * @var float
      *
-     * @ORM\Column(name="initial_quantity", type="float", precision=5, scale=2, nullable=false)
+     * @ORM\Column(name="initial_quantity", type="float", precision=9, scale=2, nullable=false)
      */
     private $initialQuantity;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="current_quantity", type="float", precision=5, scale=2, nullable=false)
+     * @ORM\Column(name="current_quantity", type="float", precision=9, scale=2, nullable=false)
      */
     private $currentQuantity;
 
