@@ -136,6 +136,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $entity->setMunitionManager($usersRepository->find($data->munitionManager));
             $entity->setMunitionFiel($usersRepository->find($data->munitionFiel));
             $entity->setFiscalAgent($usersRepository->find($data->fiscalAgent));
+            $entity->setIsCeim($data->isCeim ?? 'no');
 
             db::em()->persist($entity);
             // flush transaction
@@ -205,6 +206,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $entity->setMunitionManager($usersRepository->find($data->munitionManager));
             $entity->setMunitionFiel($usersRepository->find($data->munitionFiel));
             $entity->setFiscalAgent($usersRepository->find($data->fiscalAgent));
+            $entity->setIsCeim($data->isCeim ?? 'no');
 
             db::em()->flush();
 

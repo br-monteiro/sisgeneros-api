@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * MilitaryOrganizations
  *
- * @ORM\Table(name="military_organizations", uniqueConstraints={@ORM\UniqueConstraint(name="naval_indicative_UNIQUE", columns={"naval_indicative"})}, indexes={@ORM\Index(name="fk_military_organizations_users1_idx", columns={"munition_manager"}), @ORM\Index(name="fk_military_organizations_users2_idx", columns={"fiscal_agent"}), @ORM\Index(name="fk_military_organizations_users3_idx", columns={"munition_fiel"})})
+ * @ORM\Table(name="military_organizations", uniqueConstraints={@ORM\UniqueConstraint(name="naval_indicative_UNIQUE", columns={"naval_indicative"}), @ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"}), @ORM\UniqueConstraint(name="uasg_number_UNIQUE", columns={"uasg_number"})}, indexes={@ORM\Index(name="fk_military_organizations_users1_idx", columns={"munition_manager"}), @ORM\Index(name="fk_military_organizations_users2_idx", columns={"fiscal_agent"}), @ORM\Index(name="fk_military_organizations_users3_idx", columns={"munition_fiel"})})
  * @ORM\Entity
  */
 class MilitaryOrganizations implements EntityInterface
@@ -42,6 +42,13 @@ class MilitaryOrganizations implements EntityInterface
      * @ORM\Column(name="uasg_number", type="integer", nullable=false)
      */
     private $uasgNumber;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="is_ceim", type="string", length=3, nullable=false)
+     */
+    private $isCeim;
 
     /**
      * @var \App\Entities\Users
@@ -116,6 +123,11 @@ class MilitaryOrganizations implements EntityInterface
         return $this->uasgNumber;
     }
 
+    public function getIsCeim()
+    {
+        return $this->isCeim;
+    }
+
     public function getMunitionManager()
     {
         return $this->munitionManager;
@@ -156,6 +168,12 @@ class MilitaryOrganizations implements EntityInterface
     public function setUasgNumber($uasgNumber)
     {
         $this->uasgNumber = $uasgNumber;
+        return $this;
+    }
+
+    public function setIsCeim($isCeim)
+    {
+        $this->isCeim = $isCeim;
         return $this;
     }
 
