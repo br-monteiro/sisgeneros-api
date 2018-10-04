@@ -1,6 +1,7 @@
 # Directories
 /nbproject/
 /vendor/
+/temp/
 
 # Files
 composer.lock
