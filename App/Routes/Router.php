@@ -18,5 +18,7 @@ class Router
         SuppliersRoute::setUp($app);
         // stock military organizations
         StockMilitaryOrganizationsRoute::setUp($app);
+        // meals routes
+        MealsRoute::setUp($app);
     }
 }
