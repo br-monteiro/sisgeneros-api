@@ -1,0 +1,27 @@
+{
+    "type": "object",
+    "properties": {
+        "militaryOrganizationsId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100
+        },
+        "supplyUnit": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5
+        },
+        "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100000000,
+            "exclusiveMaximum": true
+        }
+    },
+    "required": ["militaryOrganizationsId", "name", "supplyUnit", "quantity"]
+}
