@@ -13,6 +13,7 @@ class Configuration
     const PATH_ENTITIES = 'App/Entities';
     const JSON_SCHEMA = '../App/json-schemes/';
     const EXPIRATE_TOKEN = 2592000; // 30 days
+    const MAX_RESULTS = 50;
     const ALLOW_CORS = [];
     const ALLOW_HEADERS = [
         'X-PINGOTHER',

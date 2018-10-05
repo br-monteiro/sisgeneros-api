@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * Meals
  *
- * @ORM\Table(name="meals")
+ * @ORM\Table(name="meals", uniqueConstraints={@ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"})})
  * @ORM\Entity
  */
 class Meals implements EntityInterface
