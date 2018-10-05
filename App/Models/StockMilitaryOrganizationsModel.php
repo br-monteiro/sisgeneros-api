@@ -251,14 +251,15 @@ class StockMilitaryOrganizationsModel extends AbstractModel
             . "FROM "
             . "    stock_military_organizations AS smo "
             . "WHERE "
-            . "    smo.military_organizations_id = :moi AND smo.name = :name ";
+            . "    smo.military_organizations_id = :moi "
+            . "    OR smo.name = :name ";
         $param = [
             ":moi" => $data->militaryOrganizationsId ?? time(),
             ":name" => $data->name ?? time()
         ];
 
         if ($id) {
-            $query .= "AND smo.id != :id";
+            $query .= " AND smo.id != :id";
             $param[':id'] = $id;
         }
 
