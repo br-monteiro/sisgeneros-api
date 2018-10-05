@@ -270,8 +270,7 @@ class BiddingsModel extends AbstractModel
             . "    biddings AS b "
             . "WHERE "
             . "    b.number = :n "
-            . "    OR b.year = :y "
-            . "    OR b.uasg_number = :un";
+            . "    AND (b.year = :y OR b.uasg_number = :un) ";
         $param = [
             ":n" => $data->number ?? time(),
             ":y" => $data->year ?? time(),

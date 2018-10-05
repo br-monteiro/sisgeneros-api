@@ -249,8 +249,7 @@ class StockSabmModel extends AbstractModel
             . "    stock_sabm AS ss "
             . "WHERE "
             . "    ss.military_organizations_id = :moi"
-            . "    OR ss.name = :name "
-            . "    OR ss.pi_identifier = :pi ";
+            . "    AND (ss.name = :name OR ss.pi_identifier = :pi )";
         $param = [
             ":moi" => $data->militaryOrganizationsId ?? time(),
             ":name" => $data->name ?? time(),
