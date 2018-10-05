@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * RecipesPatternsItems
  *
- * @ORM\Table(name="recipes_patterns_items", indexes={@ORM\Index(name="fk_recipes_items_recipes1_idx", columns={"recipes_id"})})
+ * @ORM\Table(name="recipes_patterns_items", indexes={@ORM\Index(name="fk_recipes_items_recipes1_idx", columns={"recipes_patterns_id"})})
  * @ORM\Entity
  */
 class RecipesPatternsItems implements EntityInterface
@@ -41,10 +41,10 @@ class RecipesPatternsItems implements EntityInterface
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\RecipesPatterns")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="recipes_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="recipes_patterns_id", referencedColumnName="id")
      * })
      */
-    private $recipes;
+    private $recipesPatterns;
 
     public function getId()
     {
@@ -61,9 +61,9 @@ class RecipesPatternsItems implements EntityInterface
         return $this->supplyUnit;
     }
 
-    public function getRecipes()
+    public function getRecipesPatterns()
     {
-        return $this->recipes;
+        return $this->recipesPatterns;
     }
 
     public function setName($name)
@@ -78,9 +78,9 @@ class RecipesPatternsItems implements EntityInterface
         return $this;
     }
 
-    public function setRecipes($recipes)
+    public function setRecipesPatterns($recipesPatterns)
     {
-        $this->recipes = $recipes;
+        $this->recipesPatterns = $recipesPatterns;
         return $this;
     }
 }

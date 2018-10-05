@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * StockControlsItems
  *
- * @ORM\Table(name="stock_controls_items", indexes={@ORM\Index(name="fk_stoke_entries_items_stok_entries1_idx", columns={"stok_entries_id"})})
+ * @ORM\Table(name="stock_controls_items", indexes={@ORM\Index(name="fk_stoke_entries_items_stok_entries1_idx", columns={"stock_controls_id"})})
  * @ORM\Entity
  */
 class StockControlsItems implements EntityInterface
@@ -55,10 +55,10 @@ class StockControlsItems implements EntityInterface
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\StockControls")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="stok_entries_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="stock_controls_id", referencedColumnName="id")
      * })
      */
-    private $stokEntries;
+    private $stockControls;
 
     public function getId()
     {
@@ -85,9 +85,9 @@ class StockControlsItems implements EntityInterface
         return $this->piIdentifier;
     }
 
-    public function getStokEntries()
+    public function getStockControls()
     {
-        return $this->stokEntries;
+        return $this->stockControls;
     }
 
     public function setName($name)
@@ -114,9 +114,9 @@ class StockControlsItems implements EntityInterface
         return $this;
     }
 
-    public function setStokEntries($stokEntries)
+    public function setStockControls($stockControls)
     {
-        $this->stokEntries = $stokEntries;
+        $this->stockControls = $stockControls;
         return $this;
     }
 }
