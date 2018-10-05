@@ -105,7 +105,7 @@ class BiddingsModel extends AbstractModel
         try {
 
             // validate to not save a double register
-            self::isDoubleRegistration($data);
+            self::checkDoubleRegistration($data);
             // check if the validate attribute is valid
             $dateValidate = self::validateYear($data);
 
@@ -174,7 +174,7 @@ class BiddingsModel extends AbstractModel
             }
 
             // validate to not save a double register
-            self::isDoubleRegistration($data, $id);
+            self::checkDoubleRegistration($data, $id);
             // check if the validate attribute is valid
             $dateValidate = self::validateYear($data);
 
@@ -261,7 +261,7 @@ class BiddingsModel extends AbstractModel
      * @param \stdClass $data
      * @throws DoubleRegistrationException
      */
-    private static function isDoubleRegistration(\stdClass $data, int $id = 0)
+    private static function checkDoubleRegistration(\stdClass $data, int $id = 0)
     {
         $query = ""
             . "SELECT "

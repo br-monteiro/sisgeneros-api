@@ -108,7 +108,7 @@ class StockSabmModel extends AbstractModel
 
         try {
 
-            self::isDoubleRegistration($data);
+            self::checkDoubleRegistration($data);
 
             $militaryOrganizationsRepository = db::em()->getRepository(MilitaryOrganizations::class);
             $entity = new StockSabm();
@@ -172,7 +172,7 @@ class StockSabmModel extends AbstractModel
             }
 
 
-            self::isDoubleRegistration($data, $id);
+            self::checkDoubleRegistration($data, $id);
 
             $militaryOrganizationsRepository = db::em()->getRepository(MilitaryOrganizations::class);
             $entity->setName($data->name);
@@ -240,7 +240,7 @@ class StockSabmModel extends AbstractModel
      * @param \stdClass $data
      * @throws DoubleRegistrationException
      */
-    private static function isDoubleRegistration(\stdClass $data, int $id = 0)
+    private static function checkDoubleRegistration(\stdClass $data, int $id = 0)
     {
         $query = ""
             . "SELECT "
