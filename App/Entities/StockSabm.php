@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * StockSabm
  *
- * @ORM\Table(name="stock_sabm", uniqueConstraints={@ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"}), @ORM\UniqueConstraint(name="pi_identifier_UNIQUE", columns={"pi_identifier"})}, indexes={@ORM\Index(name="fk_stok_sabm_military_organizations1_idx", columns={"military_organizations_id"})})
+ * @ORM\Table(name="stock_sabm", indexes={@ORM\Index(name="fk_stok_sabm_military_organizations1_idx", columns={"military_organizations_id"})})
  * @ORM\Entity
  */
 class StockSabm implements EntityInterface
