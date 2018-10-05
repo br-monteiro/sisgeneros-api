@@ -30,13 +30,6 @@ class RecipesPatternsItems implements EntityInterface
     private $name;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="supply_unit", type="string", length=5, nullable=false)
-     */
-    private $supplyUnit;
-
-    /**
      * @var \App\Entities\RecipesPatterns
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\RecipesPatterns")
@@ -56,11 +49,6 @@ class RecipesPatternsItems implements EntityInterface
         return $this->name;
     }
 
-    public function getSupplyUnit()
-    {
-        return $this->supplyUnit;
-    }
-
     public function getRecipesPatterns()
     {
         return $this->recipesPatterns;
@@ -69,12 +57,6 @@ class RecipesPatternsItems implements EntityInterface
     public function setName($name)
     {
         $this->name = $name;
-        return $this;
-    }
-
-    public function setSupplyUnit($supplyUnit)
-    {
-        $this->supplyUnit = $supplyUnit;
         return $this;
     }
 
