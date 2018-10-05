@@ -20,5 +20,7 @@ class Router
         StockMilitaryOrganizationsRoute::setUp($app);
         // meals routes
         MealsRoute::setUp($app);
+        // biddings routes
+        BiddingsRoute::setUp($app);
     }
 }
