@@ -22,5 +22,7 @@ class Router
         MealsRoute::setUp($app);
         // biddings routes
         BiddingsRoute::setUp($app);
+        // stock SAbM
+        StockSabmRoute::setUp($app);
     }
 }
