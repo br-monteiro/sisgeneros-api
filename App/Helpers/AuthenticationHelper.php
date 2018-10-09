@@ -19,11 +19,12 @@ class AuthenticationHelper
     public static function isValidLogin(Request $request)
     {
         $token = ValidateAuthentication::token($request);
+        $currentHost = filter_input(INPUT_SERVER, 'HTTP_HOST');
 
-        if (!$token) {
+        if (!$token || (isset($token->iss) && $token->iss !== $currentHost)) {
             throw new InvalidUserException("Invalid User");
         }
-        
+
         if (isset($token->exp) && $token->exp < time()) {
             throw new ExpiredUserException("User with expired authentication");
         }
