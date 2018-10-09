@@ -7,27 +7,25 @@ use HTR\Common\Json;
 use Slim\Http\Response;
 use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
-use App\Exceptions\DoubleRegistrationException;
+use App\Entities\RecipesPatterns;
+use App\Entities\RecipesPatternsItems;
 use App\Entities\MilitaryOrganizations;
-use App\Entities\StockSabm;
 
-class StockSabmModel extends AbstractModel
+class RecipesPatternsModel extends AbstractModel
 {
 
     /**
      * Returns all register
-     * @param Request $request The Resquest Object
-     * @param Response $response The Response Object
+     * @param Response $response
      * @return Response
      */
     public static function findAll(Request $request, Response $response): Response
     {
         try {
 
-            $paginator = paginator::buildAttributes($request, 'stock_sabm');
+            $paginator = paginator::buildAttributes($request, 'recipes_patterns');
 
             if ($paginator->hasError) {
                 throw new PaginatorException($paginator->error);
@@ -35,7 +33,7 @@ class StockSabmModel extends AbstractModel
 
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(StockSabm::class);
+            $repository = db::em()->getRepository(RecipesPatterns::class);
             $entity = $repository->findBy([], null, $limit, $offset);
 
             return $response->withJson([
@@ -57,21 +55,21 @@ class StockSabmModel extends AbstractModel
 
     /**
      * Return one register by ID
-     * @param int $id The identify value
-     * @param Response $response The Response Object
+     * @param int $id
+     * @param Response $response
      * @return Response
      */
     public static function find(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(StockSabm::class);
+            $repository = db::em()->getRepository(RecipesPatterns::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Stock not found",
+                            "message" => "Recipe not found",
                             "status" => "error"
                             ], 404);
             }
@@ -81,6 +79,9 @@ class StockSabmModel extends AbstractModel
                     "status" => "success",
                     "data" => self::outputValidate($entity)
                         ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('items', function ($e) {
+                                return self::getAllRecipesItems($e);
+                            })
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -90,15 +91,15 @@ class StockSabmModel extends AbstractModel
 
     /**
      * Register new value
-     * @param Request $request The Resquest Object
-     * @param Response $response The Response Object
+     * @param Request $request
+     * @param Response $response
      * @return Response
      */
     public static function create(Request $request, Response $response): Response
     {
-        $data = (object) $request->getParsedBody() ?? [];
+        $data = json_decode($request->getBody()->getContents()) ?? [];
 
-        if (!self::inputValidate($data, 'stock_sabm_schema.json')) {
+        if (!self::inputValidate($data, 'recipes_patterns_schema.json')) {
             return $response->withJson([
                     "message" => "There are wrong fields in submission",
                     "status" => "error",
@@ -106,21 +107,37 @@ class StockSabmModel extends AbstractModel
                     ], 400);
         }
 
+        db::em()->getConnection()->beginTransaction();
+
         try {
 
-            self::checkDoubleRegistration($data);
+            $militaryOrganizations = db::em()
+                ->getRepository(MilitaryOrganizations::class)
+                ->find($data->militaryOrganizationsId);
 
-            $militaryOrganizationsRepository = db::em()->getRepository(MilitaryOrganizations::class);
-            $entity = new StockSabm();
+            $entity = new RecipesPatterns();
             $entity->setName($data->name);
-            $entity->setSupplyUnit($data->supplyUnit);
-            $entity->setQuantity($data->quantity);
-            $entity->setPiIdentifier($data->piIdentifier);
-            $entity->setMilitaryOrganizations($militaryOrganizationsRepository->find($data->militaryOrganizationsId));
+            $entity->setMilitaryOrganizations($militaryOrganizations);
 
             db::em()->persist($entity);
             // flush transaction
             db::em()->flush();
+
+            // registem items of Recipe
+            if (isset($data->items)) {
+                $objItems = [];
+                foreach ($data->items as $i => $item) {
+                    $objItems[$i] = new RecipesPatternsItems();
+                    $objItems[$i]->setName($item->name);
+                    $objItems[$i]->setRecipesPatterns($entity);
+                    db::em()->persist($objItems[$i]);
+                    // flush transaction
+                    db::em()->flush();
+                }
+            }
+
+            // commit transaction
+            db::em()->getConnection()->commit();
 
             return $response->withJson([
                     "message" => "Registry created successfully",
@@ -130,12 +147,8 @@ class StockSabmModel extends AbstractModel
                         ->run()
                     ], 201);
         } catch (ORMException $ex) {
+            db::em()->getConnection()->rollBack();
             return self::commonError($response, $ex);
-        } catch (DoubleRegistrationException $ex) {
-            return $response->withJson([
-                    "message" => $ex->getMessage(),
-                    "status" => "error"
-                    ], 400);
         }
     }
 
@@ -148,22 +161,22 @@ class StockSabmModel extends AbstractModel
      */
     public static function update(int $id, Request $request, Response $response): Response
     {
-        $data = (object) $request->getParsedBody() ?? [];
+        $data = json_decode($request->getBody()->getContents()) ?? [];
 
         try {
-            $repository = db::em()->getRepository(StockSabm::class);
+            $repository = db::em()->getRepository(RecipesPatterns::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Stock not found",
+                            "message" => "Recipe not found",
                             "status" => "error"
                             ], 404);
             }
 
-            if (!self::inputValidate($data, 'stock_sabm_schema.json')) {
+            if (!self::inputValidate($data, 'recipes_patterns_schema.json')) {
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
@@ -171,15 +184,7 @@ class StockSabmModel extends AbstractModel
                         ], 400);
             }
 
-
-            self::checkDoubleRegistration($data, $id);
-
-            $militaryOrganizationsRepository = db::em()->getRepository(MilitaryOrganizations::class);
             $entity->setName($data->name);
-            $entity->setSupplyUnit($data->supplyUnit);
-            $entity->setQuantity($data->quantity);
-            $entity->setPiIdentifier($data->piIdentifier);
-            $entity->setMilitaryOrganizations($militaryOrganizationsRepository->find($data->militaryOrganizationsId));
 
             db::em()->flush();
 
@@ -188,20 +193,13 @@ class StockSabmModel extends AbstractModel
                     "status" => "success",
                     "data" => self::outputValidate($entity)
                         ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('items', function ($e) {
+                                return self::getAllRecipesItems($e);
+                            })
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
-            return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
-                    "status" => "warning"
-                    ], 400);
-        } catch (DoubleRegistrationException $ex) {
-            return $response->withJson([
-                    "message" => $ex->getMessage(),
-                    "status" => "error"
-                    ], 400);
         }
     }
 
@@ -214,14 +212,14 @@ class StockSabmModel extends AbstractModel
     public static function remove(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(StockSabm::class);
+            $repository = db::em()->getRepository(RecipesPatterns::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Stock not found",
+                            "message" => "Recipe not found",
                             "status" => "error"
                             ], 404);
             }
@@ -235,36 +233,11 @@ class StockSabmModel extends AbstractModel
         }
     }
 
-    /**
-     * Checks if there is a record with the same data
-     * @param \stdClass $data
-     * @throws DoubleRegistrationException
-     */
-    private static function checkDoubleRegistration(\stdClass $data, int $id = 0)
+    public static function getAllRecipesItems($entity)
     {
-        $query = ""
-            . "SELECT "
-            . "    ss.id "
-            . "FROM "
-            . "    stock_sabm AS ss "
-            . "WHERE "
-            . "    ss.military_organizations_id = :moi"
-            . "    AND (ss.name = :name OR ss.pi_identifier = :pi )";
-        $param = [
-            ":moi" => $data->militaryOrganizationsId ?? time(),
-            ":name" => $data->name ?? time(),
-            ":pi" => $data->piIdentifier ?? time()
-        ];
-
-        if ($id) {
-            $query .= " AND ss.id != :id";
-            $param[':id'] = $id;
-        }
-
+        $query = "SELECT id, name FROM recipes_patterns_items AS rpi WHERE rpi.recipes_patterns_id = ?";
         $stmt = db::em()->getConnection()->prepare($query);
-        $stmt->execute($param);
-        if ($stmt->rowCount() > 0) {
-            throw new DoubleRegistrationException("A record with this data already exists");
-        }
+        $stmt->execute([$entity->getId()]);
+        return $stmt->fetchAll(\PDO::FETCH_OBJ);
     }
 }

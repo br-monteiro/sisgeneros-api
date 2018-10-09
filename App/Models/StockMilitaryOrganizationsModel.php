@@ -252,7 +252,7 @@ class StockMilitaryOrganizationsModel extends AbstractModel
             . "    stock_military_organizations AS smo "
             . "WHERE "
             . "    smo.military_organizations_id = :moi "
-            . "    OR smo.name = :name ";
+            . "    AND smo.name = :name ";
         $param = [
             ":moi" => $data->militaryOrganizationsId ?? time(),
             ":name" => $data->name ?? time()

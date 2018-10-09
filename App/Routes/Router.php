@@ -24,5 +24,9 @@ class Router
         BiddingsRoute::setUp($app);
         // stock SAbM
         StockSabmRoute::setUp($app);
+        // recipes patterns
+        RecipesPatternsRoute::setUp($app);
+        // auth routes
+        AuthRoute::setUp($app);
     }
 }
