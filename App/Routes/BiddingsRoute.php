@@ -3,28 +3,32 @@ namespace App\Routes;
 
 use Slim\App;
 use App\Controllers\BiddingsController;
+use App\Middlewares\AuthenticationMiddleware;
 
 class BiddingsRoute
 {
 
     public static function setUp(App $app)
     {
-        $app->get('/api/v1/biddings', BiddingsController::class . ":findAll");
+        $app->group('', function() {
+                $this->get('/api/v1/biddings', BiddingsController::class . ":findAll");
 
-        $app->get('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":find");
+                $this->get('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":find");
 
-        $app->post('/api/v1/biddings', BiddingsController::class . ":create");
+                $this->post('/api/v1/biddings', BiddingsController::class . ":create");
 
-        $app->options('/api/v1/biddings', function($request, $response) {
-            header("Access-Control-Allow-Methods: POST, OPTIONS");
-        });
+                $this->options('/api/v1/biddings', function() {
+                    header("Access-Control-Allow-Methods: POST, OPTIONS");
+                });
 
-        $app->put('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":update");
+                $this->put('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":update");
 
-        $app->delete('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":remove");
+                $this->delete('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":remove");
 
-        $app->options('/api/v1/biddings/{id:[0-9]+}', function($request, $response) {
-            header("Access-Control-Allow-Methods: PUT, DELETE, OPTIONS");
-        });
+                $this->options('/api/v1/biddings/{id:[0-9]+}', function() {
+                    header("Access-Control-Allow-Methods: PUT, DELETE, OPTIONS");
+                });
+            })
+            ->add(AuthenticationMiddleware::class . ':verify');
     }
 }

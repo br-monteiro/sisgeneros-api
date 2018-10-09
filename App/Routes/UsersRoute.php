@@ -3,28 +3,32 @@ namespace App\Routes;
 
 use Slim\App;
 use App\Controllers\UsersController;
+use App\Middlewares\AuthenticationMiddleware;
 
 class UsersRoute
 {
 
     public static function setUp(App $app)
     {
-        $app->get('/api/v1/users', UsersController::class . ":findAll");
+        $app->group('', function() {
+                $this->get('/api/v1/users', UsersController::class . ":findAll");
 
-        $app->get('/api/v1/users/{id:[0-9]+}', UsersController::class . ":find");
+                $this->get('/api/v1/users/{id:[0-9]+}', UsersController::class . ":find");
 
-        $app->post('/api/v1/users', UsersController::class . ":create");
+                $this->post('/api/v1/users', UsersController::class . ":create");
 
-        $app->options('/api/v1/users', function($request, $response) {
-            header("Access-Control-Allow-Methods: POST, OPTIONS");
-        });
+                $this->options('/api/v1/users', function() {
+                    header("Access-Control-Allow-Methods: POST, OPTIONS");
+                });
 
-        $app->put('/api/v1/users/{id:[0-9]+}', UsersController::class . ":update");
+                $this->put('/api/v1/users/{id:[0-9]+}', UsersController::class . ":update");
 
-        $app->delete('/api/v1/users/{id:[0-9]+}', UsersController::class . ":remove");
+                $this->delete('/api/v1/users/{id:[0-9]+}', UsersController::class . ":remove");
 
-        $app->options('/api/v1/users/{id:[0-9]+}', function($request, $response) {
-            header("Access-Control-Allow-Methods: PUT, DELETE, OPTIONS");
-        });
+                $this->options('/api/v1/users/{id:[0-9]+}', function() {
+                    header("Access-Control-Allow-Methods: PUT, DELETE, OPTIONS");
+                });
+            })
+            ->add(AuthenticationMiddleware::class . ':verify');
     }
 }

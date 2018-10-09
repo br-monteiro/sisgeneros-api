@@ -8,8 +8,6 @@ class Router
 
     public static function setUp(App $app)
     {
-        // routes for test
-        TestsRoute::setUp($app);
         // users routes
         UsersRoute::setUp($app);
         // military organizations
