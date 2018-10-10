@@ -44,6 +44,13 @@ class StockMilitaryOrganizations implements EntityInterface
     private $quantity;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="compromised_quantity", type="float", precision=9, scale=2, nullable=true)
+     */
+    private $compromisedQuantity;
+
+    /**
      * @var \App\Entities\MilitaryOrganizations
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\MilitaryOrganizations")
@@ -73,6 +80,11 @@ class StockMilitaryOrganizations implements EntityInterface
         return $this->quantity;
     }
 
+    public function getCompromisedQuantity()
+    {
+        return $this->compromisedQuantity;
+    }
+
     public function getMilitaryOrganizations()
     {
         return $this->militaryOrganizations;
@@ -93,6 +105,12 @@ class StockMilitaryOrganizations implements EntityInterface
     public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
+        return $this;
+    }
+
+    public function setCompromisedQuantity($compromisedQuantity)
+    {
+        $this->compromisedQuantity = $compromisedQuantity;
         return $this;
     }
 

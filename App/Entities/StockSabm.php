@@ -51,6 +51,13 @@ class StockSabm implements EntityInterface
     private $piIdentifier;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="compromised_quantity", type="float", precision=9, scale=2, nullable=true)
+     */
+    private $compromisedQuantity;
+
+    /**
      * @var \App\Entities\MilitaryOrganizations
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\MilitaryOrganizations")
@@ -85,6 +92,11 @@ class StockSabm implements EntityInterface
         return $this->piIdentifier;
     }
 
+    public function getCompromisedQuantity()
+    {
+        return $this->compromisedQuantity;
+    }
+
     public function getMilitaryOrganizations()
     {
         return $this->militaryOrganizations;
@@ -111,6 +123,12 @@ class StockSabm implements EntityInterface
     public function setPiIdentifier($piIdentifier)
     {
         $this->piIdentifier = $piIdentifier;
+        return $this;
+    }
+
+    public function setCompromisedQuantity($compromisedQuantity)
+    {
+        $this->compromisedQuantity = $compromisedQuantity;
         return $this;
     }
 
