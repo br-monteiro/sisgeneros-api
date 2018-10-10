@@ -9,11 +9,11 @@ use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
-use App\Entities\RecipesPatterns;
-use App\Entities\RecipesPatternsItems;
-use App\Entities\MilitaryOrganizations;
+use App\Entities\Recipes;
+use App\Entities\RecipesItems;
+use App\Entities\MenuDays;
 
-class RecipesPatternsModel extends AbstractModel
+class RecipesModel extends AbstractModel
 {
 
     /**
@@ -25,7 +25,7 @@ class RecipesPatternsModel extends AbstractModel
     {
         try {
 
-            $paginator = paginator::buildAttributes($request, 'recipes_patterns');
+            $paginator = paginator::buildAttributes($request, 'recipes');
 
             if ($paginator->hasError) {
                 throw new PaginatorException($paginator->error);
@@ -33,7 +33,7 @@ class RecipesPatternsModel extends AbstractModel
 
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(RecipesPatterns::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->findBy([], null, $limit, $offset);
 
             return $response->withJson([
@@ -43,7 +43,9 @@ class RecipesPatternsModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('menuDays', function($e) {
+                                return $e->getMenuDays()->getDate()->format('Y-m-d');
+                            }, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -62,7 +64,7 @@ class RecipesPatternsModel extends AbstractModel
     public static function find(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(RecipesPatterns::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
@@ -78,10 +80,14 @@ class RecipesPatternsModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
-                        ->withAttribute('items', function ($e) {
+                        ->withAttribute([
+                            'menuDays' => function($e) {
+                                return $e->getMenuDays()->getDate()->format('Y-m-d');
+                            },
+                            'items' => function($e) {
                                 return self::getAllRecipesItems($e);
-                            })
+                            }
+                        ])
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -99,7 +105,7 @@ class RecipesPatternsModel extends AbstractModel
     {
         $data = json_decode($request->getBody()->getContents()) ?? [];
 
-        if (!self::inputValidate($data, 'recipes_patterns_schema.json')) {
+        if (!self::inputValidate($data, 'recipes_schema.json')) {
             return $response->withJson([
                     "message" => "There are wrong fields in submission",
                     "status" => "error",
@@ -111,13 +117,13 @@ class RecipesPatternsModel extends AbstractModel
 
         try {
 
-            $militaryOrganizations = db::em()
-                ->getRepository(MilitaryOrganizations::class)
-                ->find($data->militaryOrganizationsId);
+            $menuDays = db::em()
+                ->getRepository(MenuDays::class)
+                ->find($data->menuDaysId);
 
-            $entity = new RecipesPatterns();
+            $entity = new Recipes();
             $entity->setName($data->name);
-            $entity->setMilitaryOrganizations($militaryOrganizations);
+            $entity->setMenuDays($menuDays);
 
             db::em()->persist($entity);
             // flush transaction
@@ -127,9 +133,9 @@ class RecipesPatternsModel extends AbstractModel
             if (isset($data->items)) {
                 $objItems = [];
                 foreach ($data->items as $i => $item) {
-                    $objItems[$i] = new RecipesPatternsItems();
+                    $objItems[$i] = new RecipesItems();
                     $objItems[$i]->setName($item->name);
-                    $objItems[$i]->setRecipesPatterns($entity);
+                    $objItems[$i]->setRecipes($entity);
                     db::em()->persist($objItems[$i]);
                     // flush transaction
                     db::em()->flush();
@@ -142,9 +148,7 @@ class RecipesPatternsModel extends AbstractModel
             return $response->withJson([
                     "message" => "Registry created successfully",
                     "status" => "success",
-                    "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
-                        ->run()
+                    "data" => self::outputValidate($entity)->run()
                     ], 201);
         } catch (ORMException $ex) {
             db::em()->getConnection()->rollBack();
@@ -164,7 +168,7 @@ class RecipesPatternsModel extends AbstractModel
         $data = json_decode($request->getBody()->getContents()) ?? [];
 
         try {
-            $repository = db::em()->getRepository(RecipesPatterns::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
@@ -176,7 +180,7 @@ class RecipesPatternsModel extends AbstractModel
                             ], 404);
             }
 
-            if (!self::inputValidate($data, 'recipes_patterns_schema.json')) {
+            if (!self::inputValidate($data, 'recipes_schema.json')) {
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
@@ -192,9 +196,8 @@ class RecipesPatternsModel extends AbstractModel
                     "message" => "Registry updated successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
-                        ->withAttribute('items', function ($e) {
-                                return self::getAllRecipesItems($e);
+                        ->withAttribute('menuDays', function($e) {
+                                return $e->getMenuDays()->getDate()->format('Y-m-d');
                             })
                         ->run()
                     ], 200);
@@ -212,7 +215,7 @@ class RecipesPatternsModel extends AbstractModel
     public static function remove(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(RecipesPatterns::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
@@ -235,7 +238,7 @@ class RecipesPatternsModel extends AbstractModel
 
     public static function getAllRecipesItems($entity)
     {
-        $query = "SELECT id, name FROM recipes_patterns_items AS rpi WHERE rpi.recipes_patterns_id = ?";
+        $query = "SELECT id, name FROM recipes_items AS ri WHERE ri.recipes_id = ?";
         $stmt = db::em()->getConnection()->prepare($query);
         $stmt->execute([$entity->getId()]);
         return $stmt->fetchAll(\PDO::FETCH_OBJ);

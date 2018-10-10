@@ -26,5 +26,7 @@ class Router
         RecipesPatternsRoute::setUp($app);
         // auth routes
         AuthRoute::setUp($app);
+        // recipes routes
+        RecipesRoute::setUp($app);
     }
 }
