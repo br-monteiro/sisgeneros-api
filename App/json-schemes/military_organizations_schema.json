@@ -33,7 +33,7 @@
         },
         "isCeim": {
             "type": "string",
-            "pattern": "^yes|no$"
+            "enum": ["yes", "no"]
         }
     },
     "required": ["name", "navalIndicative", "uasgNumber", "munitionManager", "munitionFiel", "fiscalAgent"]

@@ -24,11 +24,11 @@
         },
         "active": {
             "type": "string",
-            "pattern": "^yes|no$"
+            "enum": ["yes", "no"]
         },
         "isMaster": {
             "type": "string",
-            "pattern": "^yes|no$"
+            "enum": ["yes", "no"]
         }
     },
     "required": ["name", "fullName", "militaryPost", "nip"]
