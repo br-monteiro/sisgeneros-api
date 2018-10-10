@@ -30,5 +30,7 @@ class Router
         RecipesRoute::setUp($app);
         // menus routes
         MenusRoute::setUp($app);
+        // menu days
+        MenuDaysRoute::setUp($app);
     }
 }
