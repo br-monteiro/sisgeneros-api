@@ -23,6 +23,13 @@ class Menus implements EntityInterface
     private $id;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=15, nullable=false)
+     */
+    private $status;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="beginning", type="date", nullable=false)
@@ -71,6 +78,11 @@ class Menus implements EntityInterface
         return $this->id;
     }
 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
     public function getBeginning()
     {
         return $this->beginning;
@@ -94,6 +106,12 @@ class Menus implements EntityInterface
     public function getRequesterUser()
     {
         return $this->requesterUser;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
+        return $this;
     }
 
     public function setBeginning($beginning)
