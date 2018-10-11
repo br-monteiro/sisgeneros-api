@@ -32,5 +32,7 @@ class Router
         MenusRoute::setUp($app);
         // menu days
         MenuDaysRoute::setUp($app);
+        // biddings items
+        BiddingsItemsRoute::setUp($app);
     }
 }
