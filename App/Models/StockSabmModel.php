@@ -28,11 +28,6 @@ class StockSabmModel extends AbstractModel
         try {
 
             $paginator = paginator::buildAttributes($request, 'stock_sabm');
-
-            if ($paginator->hasError) {
-                throw new PaginatorException($paginator->error);
-            }
-
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(StockSabm::class);

@@ -26,11 +26,6 @@ class MealsModel extends AbstractModel
         try {
 
             $paginator = paginator::buildAttributes($request, 'meals');
-
-            if ($paginator->hasError) {
-                throw new PaginatorException($paginator->error);
-            }
-
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(Meals::class);

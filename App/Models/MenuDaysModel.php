@@ -28,11 +28,6 @@ class MenuDaysModel extends AbstractModel
         try {
 
             $paginator = paginator::buildAttributes($request, 'menu_days');
-
-            if ($paginator->hasError) {
-                throw new PaginatorException($paginator->error);
-            }
-
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(MenuDays::class);
