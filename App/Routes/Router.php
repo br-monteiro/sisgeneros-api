@@ -8,8 +8,6 @@ class Router
 
     public static function setUp(App $app)
     {
-        // routes for test
-        TestsRoute::setUp($app);
         // users routes
         UsersRoute::setUp($app);
         // military organizations
@@ -28,5 +26,13 @@ class Router
         RecipesPatternsRoute::setUp($app);
         // auth routes
         AuthRoute::setUp($app);
+        // recipes routes
+        RecipesRoute::setUp($app);
+        // menus routes
+        MenusRoute::setUp($app);
+        // menu days
+        MenuDaysRoute::setUp($app);
+        // biddings items
+        BiddingsItemsRoute::setUp($app);
     }
 }

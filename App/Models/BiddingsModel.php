@@ -26,11 +26,6 @@ class BiddingsModel extends AbstractModel
         try {
 
             $paginator = paginator::buildAttributes($request, 'biddings');
-
-            if ($paginator->hasError) {
-                throw new PaginatorException($paginator->error);
-            }
-
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(Biddings::class);
@@ -43,6 +38,12 @@ class BiddingsModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute([
+                            'validate' => function ($e) {
+                                return $e->getValidate()->format('Y-m-d');
+                            }
+                            ], null, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -77,6 +78,12 @@ class BiddingsModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute([
+                            'validate' => function ($e) {
+                                return $e->getValidate()->format('Y-m-d');
+                            }
+                        ])
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -124,6 +131,12 @@ class BiddingsModel extends AbstractModel
                     "message" => "Registry created successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute([
+                            'validate' => function ($e) {
+                                return $e->getValidate()->format('Y-m-d');
+                            }
+                        ])
                         ->run()
                     ], 201);
         } catch (ORMException $ex) {
@@ -191,6 +204,11 @@ class BiddingsModel extends AbstractModel
                     "status" => "success",
                     "data" => self::outputValidate($entity)
                         ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute([
+                            'validate' => function ($e) {
+                                return $e->getValidate()->format('Y-m-d');
+                            }
+                        ])
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {

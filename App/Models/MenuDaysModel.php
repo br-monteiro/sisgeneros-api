@@ -10,9 +10,11 @@ use Doctrine\ORM\ORMException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
-use App\Entities\Suppliers;
+use App\Entities\MenuDays;
+use App\Entities\Menus;
+use App\Entities\Meals;
 
-class SuppliersModel extends AbstractModel
+class MenuDaysModel extends AbstractModel
 {
 
     /**
@@ -25,10 +27,10 @@ class SuppliersModel extends AbstractModel
     {
         try {
 
-            $paginator = paginator::buildAttributes($request, 'suppliers');
+            $paginator = paginator::buildAttributes($request, 'menu_days');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(MenuDays::class);
             $entity = $repository->findBy([], null, $limit, $offset);
 
             return $response->withJson([
@@ -38,6 +40,15 @@ class SuppliersModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute(['menus', 'meals'])
+                        ->withAttribute([
+                            'date' => function ($e) {
+                                return $e->getDate()->format('Y-m-d');
+                            },
+                            'meal' => function ($e) {
+                                return $e->getMeals()->getName();
+                            },
+                            ], null, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -56,14 +67,14 @@ class SuppliersModel extends AbstractModel
     public static function find(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(MenuDays::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Supplier not found",
+                            "message" => "Menu Day not found",
                             "status" => "error"
                             ], 404);
             }
@@ -72,6 +83,15 @@ class SuppliersModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute(['menus', 'meals'])
+                        ->withAttribute([
+                            'date' => function ($e) {
+                                return $e->getDate()->format('Y-m-d');
+                            },
+                            'meal' => function ($e) {
+                                return $e->getMeals()->getName();
+                            },
+                        ])
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -89,7 +109,7 @@ class SuppliersModel extends AbstractModel
     {
         $data = (object) $request->getParsedBody() ?? [];
 
-        if (!self::inputValidate($data, 'suppliers_schema.json')) {
+        if (!self::inputValidate($data, 'menu_days_schema.json')) {
             return $response->withJson([
                     "message" => "There are wrong fields in submission",
                     "status" => "error",
@@ -99,10 +119,13 @@ class SuppliersModel extends AbstractModel
 
         try {
 
-            $entity = new Suppliers();
-            $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $menus = db::em()->getRepository(Menus::class)->find($data->menusId);
+            $meals = db::em()->getRepository(Meals::class)->find($data->mealsId);
+
+            $entity = new MenuDays();
+            $entity->setDate(new \DateTime($data->date));
+            $entity->setMenus($menus);
+            $entity->setMeals($meals);
 
             db::em()->persist($entity);
             // flush transaction
@@ -112,6 +135,15 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry created successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute(['menus', 'meals'])
+                        ->withAttribute([
+                            'date' => function ($e) {
+                                return $e->getDate()->format('Y-m-d');
+                            },
+                            'meal' => function ($e) {
+                                return $e->getMeals()->getName();
+                            },
+                        ])
                         ->run()
                     ], 201);
         } catch (ORMException $ex) {
@@ -136,19 +168,20 @@ class SuppliersModel extends AbstractModel
         $data = (object) $request->getParsedBody() ?? [];
 
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+
+            $repository = db::em()->getRepository(MenuDays::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Menu Day not found",
                             "status" => "error"
                             ], 404);
             }
 
-            if (!self::inputValidate($data, 'suppliers_schema.json')) {
+            if (!self::inputValidate($data, 'menu_days_schema.json')) {
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
@@ -156,9 +189,12 @@ class SuppliersModel extends AbstractModel
                         ], 400);
             }
 
-            $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $menus = db::em()->getRepository(Menus::class)->find($data->menusId);
+            $meals = db::em()->getRepository(Meals::class)->find($data->mealsId);
+
+            $entity->setDate(new \DateTime($data->date));
+            $entity->setMenus($menus);
+            $entity->setMeals($meals);
 
             db::em()->flush();
 
@@ -166,6 +202,15 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry updated successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withoutAttribute(['menus', 'meals'])
+                        ->withAttribute([
+                            'date' => function ($e) {
+                                return $e->getDate()->format('Y-m-d');
+                            },
+                            'meal' => function ($e) {
+                                return $e->getMeals()->getName();
+                            },
+                        ])
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -187,14 +232,14 @@ class SuppliersModel extends AbstractModel
     public static function remove(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(MenuDays::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Menu Day not found",
                             "status" => "error"
                             ], 404);
             }

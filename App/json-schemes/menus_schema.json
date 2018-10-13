@@ -1,0 +1,33 @@
+{
+    "type": "object",
+    "properties": {
+        "militaryOrganizationsId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "requesterUser": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "authorizerUser": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "status": {
+            "type": "string",
+            "enum": ["authorized"]
+        },
+        "beginning": {
+            "type": "string",
+            "pattern": "^20[12][0-9]-[01][0-2]-[0-3][0-9]$"
+        },
+        "ending": {
+            "type": "string",
+            "pattern": "^20[12][0-9]-[01][0-2]-[0-3][0-9]$"
+        }
+    },
+    "required": ["militaryOrganizationsId", "requesterUser", "beginning", "ending"]
+}

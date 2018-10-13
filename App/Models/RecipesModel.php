@@ -7,28 +7,28 @@ use HTR\Common\Json;
 use Slim\Http\Response;
 use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
-use App\Entities\Suppliers;
+use App\Entities\Recipes;
+use App\Entities\RecipesItems;
+use App\Entities\MenuDays;
 
-class SuppliersModel extends AbstractModel
+class RecipesModel extends AbstractModel
 {
 
     /**
      * Returns all register
-     * @param Request $request The Resquest Object
-     * @param Response $response The Response Object
+     * @param Response $response
      * @return Response
      */
     public static function findAll(Request $request, Response $response): Response
     {
         try {
 
-            $paginator = paginator::buildAttributes($request, 'suppliers');
+            $paginator = paginator::buildAttributes($request, 'recipes');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->findBy([], null, $limit, $offset);
 
             return $response->withJson([
@@ -38,6 +38,9 @@ class SuppliersModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
+                        ->withAttribute('menuDays', function($e) {
+                                return $e->getMenuDays()->getDate()->format('Y-m-d');
+                            }, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -49,21 +52,21 @@ class SuppliersModel extends AbstractModel
 
     /**
      * Return one register by ID
-     * @param int $id The identify value
-     * @param Response $response The Response Object
+     * @param int $id
+     * @param Response $response
      * @return Response
      */
     public static function find(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Supplier not found",
+                            "message" => "Recipe not found",
                             "status" => "error"
                             ], 404);
             }
@@ -72,6 +75,14 @@ class SuppliersModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute([
+                            'menuDays' => function($e) {
+                                return $e->getMenuDays()->getDate()->format('Y-m-d');
+                            },
+                            'items' => function($e) {
+                                return self::getAllRecipesItems($e);
+                            }
+                        ])
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -81,15 +92,15 @@ class SuppliersModel extends AbstractModel
 
     /**
      * Register new value
-     * @param Request $request The Resquest Object
-     * @param Response $response The Response Object
+     * @param Request $request
+     * @param Response $response
      * @return Response
      */
     public static function create(Request $request, Response $response): Response
     {
-        $data = (object) $request->getParsedBody() ?? [];
+        $data = json_decode($request->getBody()->getContents()) ?? [];
 
-        if (!self::inputValidate($data, 'suppliers_schema.json')) {
+        if (!self::inputValidate($data, 'recipes_schema.json')) {
             return $response->withJson([
                     "message" => "There are wrong fields in submission",
                     "status" => "error",
@@ -97,30 +108,46 @@ class SuppliersModel extends AbstractModel
                     ], 400);
         }
 
+        db::em()->getConnection()->beginTransaction();
+
         try {
 
-            $entity = new Suppliers();
+            $menuDays = db::em()
+                ->getRepository(MenuDays::class)
+                ->find($data->menuDaysId);
+
+            $entity = new Recipes();
             $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $entity->setMenuDays($menuDays);
 
             db::em()->persist($entity);
             // flush transaction
             db::em()->flush();
 
+            // register items of Recipe
+            if (isset($data->items)) {
+                $objItems = [];
+                foreach ($data->items as $i => $item) {
+                    $objItems[$i] = new RecipesItems();
+                    $objItems[$i]->setName($item->name);
+                    $objItems[$i]->setRecipes($entity);
+                    db::em()->persist($objItems[$i]);
+                    // flush transaction
+                    db::em()->flush();
+                }
+            }
+
+            // commit transaction
+            db::em()->getConnection()->commit();
+
             return $response->withJson([
                     "message" => "Registry created successfully",
                     "status" => "success",
-                    "data" => self::outputValidate($entity)
-                        ->run()
+                    "data" => self::outputValidate($entity)->run()
                     ], 201);
         } catch (ORMException $ex) {
+            db::em()->getConnection()->rollBack();
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
-            return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
-                    "status" => "warning"
-                    ], 400);
         }
     }
 
@@ -133,22 +160,22 @@ class SuppliersModel extends AbstractModel
      */
     public static function update(int $id, Request $request, Response $response): Response
     {
-        $data = (object) $request->getParsedBody() ?? [];
+        $data = json_decode($request->getBody()->getContents()) ?? [];
 
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Recipe not found",
                             "status" => "error"
                             ], 404);
             }
 
-            if (!self::inputValidate($data, 'suppliers_schema.json')) {
+            if (!self::inputValidate($data, 'recipes_schema.json')) {
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
@@ -157,8 +184,6 @@ class SuppliersModel extends AbstractModel
             }
 
             $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
 
             db::em()->flush();
 
@@ -166,15 +191,13 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry updated successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute('menuDays', function($e) {
+                                return $e->getMenuDays()->getDate()->format('Y-m-d');
+                            })
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
-            return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
-                    "status" => "warning"
-                    ], 400);
         }
     }
 
@@ -187,14 +210,14 @@ class SuppliersModel extends AbstractModel
     public static function remove(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Recipes::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Recipe not found",
                             "status" => "error"
                             ], 404);
             }
@@ -206,5 +229,13 @@ class SuppliersModel extends AbstractModel
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
         }
+    }
+
+    public static function getAllRecipesItems($entity)
+    {
+        $query = "SELECT id, name FROM recipes_items AS ri WHERE ri.recipes_id = ?";
+        $stmt = db::em()->getConnection()->prepare($query);
+        $stmt->execute([$entity->getId()]);
+        return $stmt->fetchAll(\PDO::FETCH_OBJ);
     }
 }

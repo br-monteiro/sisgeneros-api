@@ -28,11 +28,6 @@ class StockMilitaryOrganizationsModel extends AbstractModel
         try {
 
             $paginator = paginator::buildAttributes($request, 'stock_military_organizations');
-
-            if ($paginator->hasError) {
-                throw new PaginatorException($paginator->error);
-            }
-
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(StockMilitaryOrganizations::class);

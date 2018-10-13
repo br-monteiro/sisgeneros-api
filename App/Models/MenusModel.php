@@ -10,9 +10,12 @@ use Doctrine\ORM\ORMException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
-use App\Entities\Suppliers;
+use App\Exceptions\AuthorizedMenuException;
+use App\Entities\Menus;
+use App\Entities\MilitaryOrganizations;
+use App\Entities\Users;
 
-class SuppliersModel extends AbstractModel
+class MenusModel extends AbstractModel
 {
 
     /**
@@ -25,10 +28,10 @@ class SuppliersModel extends AbstractModel
     {
         try {
 
-            $paginator = paginator::buildAttributes($request, 'suppliers');
+            $paginator = paginator::buildAttributes($request, 'menus');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Menus::class);
             $entity = $repository->findBy([], null, $limit, $offset);
 
             return $response->withJson([
@@ -38,6 +41,7 @@ class SuppliersModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks(), null, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -56,14 +60,14 @@ class SuppliersModel extends AbstractModel
     public static function find(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Menus::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Supplier not found",
+                            "message" => "Menu not found",
                             "status" => "error"
                             ], 404);
             }
@@ -72,6 +76,7 @@ class SuppliersModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks())
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -89,7 +94,7 @@ class SuppliersModel extends AbstractModel
     {
         $data = (object) $request->getParsedBody() ?? [];
 
-        if (!self::inputValidate($data, 'suppliers_schema.json')) {
+        if (!self::inputValidate($data, 'menus_schema.json')) {
             return $response->withJson([
                     "message" => "There are wrong fields in submission",
                     "status" => "error",
@@ -99,10 +104,7 @@ class SuppliersModel extends AbstractModel
 
         try {
 
-            $entity = new Suppliers();
-            $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $entity = self::buildEntityValues(new Menus(), $data);
 
             db::em()->persist($entity);
             // flush transaction
@@ -112,6 +114,7 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry created successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks())
                         ->run()
                     ], 201);
         } catch (ORMException $ex) {
@@ -136,19 +139,19 @@ class SuppliersModel extends AbstractModel
         $data = (object) $request->getParsedBody() ?? [];
 
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Menus::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Menu not found",
                             "status" => "error"
                             ], 404);
             }
 
-            if (!self::inputValidate($data, 'suppliers_schema.json')) {
+            if (!self::inputValidate($data, 'menus_schema.json')) {
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
@@ -156,9 +159,7 @@ class SuppliersModel extends AbstractModel
                         ], 400);
             }
 
-            $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $entity = self::buildEntityValues($entity, $data);
 
             db::em()->flush();
 
@@ -166,6 +167,7 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry updated successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks())
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -173,6 +175,11 @@ class SuppliersModel extends AbstractModel
         } catch (UniqueConstraintViolationException $ex) {
             return $response->withJson([
                     "message" => $ex->getPrevious()->getMessage(),
+                    "status" => "warning"
+                    ], 400);
+        } catch (AuthorizedMenuException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getMessage(),
                     "status" => "warning"
                     ], 400);
         }
@@ -187,14 +194,14 @@ class SuppliersModel extends AbstractModel
     public static function remove(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(Menus::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Menu not found",
                             "status" => "error"
                             ], 404);
             }
@@ -206,5 +213,73 @@ class SuppliersModel extends AbstractModel
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
         }
+    }
+
+    /**
+     * Build the callbacks of output values
+     * @return array
+     */
+    private static function buildCallbacks(): array
+    {
+        return [
+            'beginning' => function($e) {
+                return $e->getBeginning()->format('Y-m-d');
+            },
+            'ending' => function($e) {
+                return $e->getEnding()->format('Y-m-d');
+            },
+            'militaryOrganizations' => function($e) {
+                return $e->getMilitaryOrganizations()->getName();
+            },
+            'requesterUser' => function($e) {
+                return $e->getRequesterUser()->getFullName();
+            },
+            'authorizerUser' => function($e) {
+                return $e->getStatus() != 'created' ? $e->getAuthorizerUser()->getFullName() : '';
+            }
+        ];
+    }
+
+    /**
+     * Build the Menus values
+     * @param Menus $entity
+     * @param \stdClass $data
+     * @throws AuthorizedMenuException
+     */
+    private static function buildEntityValues(Menus $entity, \stdClass $data): Menus
+    {
+        if ($entity->getStatus() == 'authorized') {
+            throw new AuthorizedMenuException("This menu has been authorized.");
+        }
+        // users
+        $repositoryUsers = db::em()->getRepository(Users::class);
+        $status = 'created';
+
+        if (!$entity->getId()) {
+            $requesterUser = $repositoryUsers->find($data->requesterUser);
+            $authorizerUser = $requesterUser;
+            // military organizations
+            $militaryOrganizations = db::em()
+                ->getRepository(MilitaryOrganizations::class)
+                ->find($data->militaryOrganizationsId);
+            $entity->setMilitaryOrganizations($militaryOrganizations);
+        } else {
+            $requesterUser = $entity->getRequesterUser();
+            $authorizerUser = $entity->getAuthorizerUser();
+            $status = $entity->getStatus();
+        }
+
+        if ($data->status == 'authorized' && $entity->getStatus() == 'created') {
+            $status = 'authorized';
+            $authorizerUser = $repositoryUsers->find($data->authorizerUser);
+        }
+
+        $entity->setRequesterUser($requesterUser);
+        $entity->setAuthorizerUser($authorizerUser);
+        $entity->setStatus($status);
+        $entity->setBeginning(new \DateTime($data->beginning));
+        $entity->setEnding(new \DateTime($data->ending));
+        // return
+        return $entity;
     }
 }

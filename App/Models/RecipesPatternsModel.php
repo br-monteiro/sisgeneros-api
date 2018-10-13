@@ -26,11 +26,6 @@ class RecipesPatternsModel extends AbstractModel
         try {
 
             $paginator = paginator::buildAttributes($request, 'recipes_patterns');
-
-            if ($paginator->hasError) {
-                throw new PaginatorException($paginator->error);
-            }
-
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(RecipesPatterns::class);
@@ -123,7 +118,7 @@ class RecipesPatternsModel extends AbstractModel
             // flush transaction
             db::em()->flush();
 
-            // registem items of Recipe
+            // register items of Recipe
             if (isset($data->items)) {
                 $objItems = [];
                 foreach ($data->items as $i => $item) {

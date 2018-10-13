@@ -7,28 +7,30 @@ use HTR\Common\Json;
 use Slim\Http\Response;
 use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
+use App\Exceptions\InvalidDateException;
+use App\Exceptions\DoubleRegistrationException;
+use App\Entities\BiddingsItems;
+use App\Entities\Biddings;
 use App\Entities\Suppliers;
 
-class SuppliersModel extends AbstractModel
+class BiddingsItemsModel extends AbstractModel
 {
 
     /**
      * Returns all register
-     * @param Request $request The Resquest Object
-     * @param Response $response The Response Object
+     * @param Response $response
      * @return Response
      */
     public static function findAll(Request $request, Response $response): Response
     {
         try {
 
-            $paginator = paginator::buildAttributes($request, 'suppliers');
+            $paginator = paginator::buildAttributes($request, 'biddings_items');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(BiddingsItems::class);
             $entity = $repository->findBy([], null, $limit, $offset);
 
             return $response->withJson([
@@ -38,6 +40,7 @@ class SuppliersModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks(), null, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -49,21 +52,21 @@ class SuppliersModel extends AbstractModel
 
     /**
      * Return one register by ID
-     * @param int $id The identify value
-     * @param Response $response The Response Object
+     * @param int $id
+     * @param Response $response
      * @return Response
      */
     public static function find(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(BiddingsItems::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Supplier not found",
+                            "message" => "Item not found",
                             "status" => "error"
                             ], 404);
             }
@@ -72,6 +75,7 @@ class SuppliersModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks())
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -81,15 +85,15 @@ class SuppliersModel extends AbstractModel
 
     /**
      * Register new value
-     * @param Request $request The Resquest Object
-     * @param Response $response The Response Object
+     * @param Request $request
+     * @param Response $response
      * @return Response
      */
     public static function create(Request $request, Response $response): Response
     {
-        $data = (object) $request->getParsedBody() ?? [];
+        $data = json_decode($request->getBody()->getContents() ?? []);
 
-        if (!self::inputValidate($data, 'suppliers_schema.json')) {
+        if (!self::inputValidate($data, 'biddings_items_schema.json')) {
             return $response->withJson([
                     "message" => "There are wrong fields in submission",
                     "status" => "error",
@@ -99,10 +103,26 @@ class SuppliersModel extends AbstractModel
 
         try {
 
-            $entity = new Suppliers();
+            $biddings = db::em()
+                ->getRepository(Biddings::class)
+                ->find($data->biddingsId);
+
+            $suppliers = db::em()
+                ->getRepository(Suppliers::class)
+                ->find($data->suppliersId);
+
+            // validate to not save a double register
+            self::checkDoubleRegistration($data);
+
+            $entity = new BiddingsItems();
+            $entity->setBiddings($biddings);
+            $entity->setSuppliers($suppliers);
+            $entity->setNumber($data->number);
             $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $entity->setSupplyUnit($data->supplyUnit);
+            $entity->setInitialQuantity($data->initialQuantity);
+            $entity->setCurrentQuantity($data->initialQuantity);
+            $entity->setValue($data->value);
 
             db::em()->persist($entity);
             // flush transaction
@@ -112,14 +132,15 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry created successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks())
                         ->run()
                     ], 201);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
+        } catch (DoubleRegistrationException $ex) {
             return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
-                    "status" => "warning"
+                    "message" => $ex->getMessage(),
+                    "status" => "error"
                     ], 400);
         }
     }
@@ -136,19 +157,19 @@ class SuppliersModel extends AbstractModel
         $data = (object) $request->getParsedBody() ?? [];
 
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(BiddingsItems::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Item not found",
                             "status" => "error"
                             ], 404);
             }
 
-            if (!self::inputValidate($data, 'suppliers_schema.json')) {
+            if (!self::inputValidate($data, 'biddings_items_schema.json')) {
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
@@ -156,9 +177,25 @@ class SuppliersModel extends AbstractModel
                         ], 400);
             }
 
+            $biddings = db::em()
+                ->getRepository(Biddings::class)
+                ->find($data->biddingsId);
+
+            $suppliers = db::em()
+                ->getRepository(Suppliers::class)
+                ->find($data->suppliersId);
+
+            // validate to not save a double register
+            self::checkDoubleRegistration($data, $id);
+
+            $entity->setBiddings($biddings);
+            $entity->setSuppliers($suppliers);
+            $entity->setNumber($data->number);
             $entity->setName($data->name);
-            $entity->setCnpj($data->cnpj);
-            $entity->setContacts($data->contacts);
+            $entity->setSupplyUnit($data->supplyUnit);
+            $entity->setInitialQuantity($data->initialQuantity);
+            $entity->setCurrentQuantity($data->initialQuantity);
+            $entity->setValue($data->value);
 
             db::em()->flush();
 
@@ -166,14 +203,20 @@ class SuppliersModel extends AbstractModel
                     "message" => "Registry updated successfully",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks())
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
+        } catch (InvalidDateException $ex) {
             return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
-                    "status" => "warning"
+                    "message" => $ex->getMessage(),
+                    "status" => "error"
+                    ], 400);
+        } catch (DoubleRegistrationException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getMessage(),
+                    "status" => "error"
                     ], 400);
         }
     }
@@ -187,14 +230,14 @@ class SuppliersModel extends AbstractModel
     public static function remove(int $id, Response $response): Response
     {
         try {
-            $repository = db::em()->getRepository(Suppliers::class);
+            $repository = db::em()->getRepository(BiddingsItems::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
                 // no have results
                 return $response
                         ->withJson([
-                            "message" => "Suppliers not found",
+                            "message" => "Item not found",
                             "status" => "error"
                             ], 404);
             }
@@ -205,6 +248,53 @@ class SuppliersModel extends AbstractModel
             return $response->withJson("", 204);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
+        }
+    }
+
+    private static function buildCallbacks(): array
+    {
+        return [
+            'biddings' => function ($e) {
+                return $e->getBiddings()->getNumber() . '/' . $e->getBiddings()->getYear();
+            },
+            'suppliers' => function ($e) {
+                return $e->getSuppliers()->getName();
+            }
+        ];
+    }
+
+    /**
+     * Checks if there is a record with the same data
+     * @param \stdClass $data
+     * @throws DoubleRegistrationException
+     */
+    private static function checkDoubleRegistration(\stdClass $data, int $id = 0)
+    {
+        $query = ""
+            . "SELECT "
+            . "    bi.id "
+            . "FROM "
+            . "    biddings_items AS bi "
+            . "WHERE "
+            . "    bi.biddings_id = :bid "
+            . "    AND (bi.name = :name OR bi.number = :number) ";
+
+        $param = [
+            ":bid" => $data->biddingsId ?? time(),
+            ":name" => $data->name ?? time(),
+            ":number" => $data->number ?? time()
+        ];
+
+        if ($id) {
+            $query .= " AND bi.id != :id";
+            $param[':id'] = $id;
+        }
+
+        $stmt = db::em()->getConnection()->prepare($query);
+        $stmt->execute($param);
+
+        if ($stmt->rowCount() > 0) {
+            throw new DoubleRegistrationException("A record with this data already exists");
         }
     }
 }
