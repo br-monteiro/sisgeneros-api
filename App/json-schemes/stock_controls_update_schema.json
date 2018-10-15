@@ -1,0 +1,46 @@
+{
+    "type": "object",
+    "properties": {
+        "militaryOrganizationsOrigin": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "militaryOrganizationsDestiny": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "authorizerUser": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "receiverUser": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "status": {
+            "type": "string",
+            "enum": ["authorized", "canceled", "delivered"]
+        },
+        "fiscalDocument": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 15
+        },
+        "observations": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 256
+        }
+    },
+    "required": [
+        "militaryOrganizationsOrigin",
+        "militaryOrganizationsDestiny",
+        "authorizerUser",
+        "receiverUser",
+        "status"
+    ]
+}

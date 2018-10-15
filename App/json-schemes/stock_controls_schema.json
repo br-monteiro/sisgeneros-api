@@ -1,0 +1,78 @@
+{
+    "type": "object",
+    "properties": {
+        "militaryOrganizationsId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "militaryOrganizationsOrigin": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "militaryOrganizationsDestiny": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "requesterUser": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "stockType": {
+            "type": "string",
+            "enum": ["estpai", "esceim", "esdabm"]
+        },
+        "transactionType": {
+            "type": "string",
+            "enum": ["input", "output"]
+        },
+        "observations": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 256
+        },
+        "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 100
+                    },
+                    "supplyUnit": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 5
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 100000000,
+                        "exclusiveMaximum": true
+                    },
+                    "piIdentifier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                    }
+                },
+                "required": ["name", "supplyUnit", "quantity"]
+            }
+        }
+    },
+    "required": [
+        "militaryOrganizationsId", 
+        "militaryOrganizationsOrigin",
+        "militaryOrganizationsDestiny",
+        "requesterUser",
+        "stockType",
+        "transactionType",
+        "items"
+    ]
+}
