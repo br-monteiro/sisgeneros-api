@@ -16,7 +16,9 @@ class Configuration
     const EXPIRATE_TOKEN = 2592000; // 30 days
     const MAX_RESULTS = 50;
     const USER_ENTITY = Users::class;
-    const ALLOW_CORS = [];
+    const ALLOW_CORS = [
+        'localhost:8080'
+    ];
     const ALLOW_HEADERS = [
         'X-PINGOTHER',
         'Content-Type',
