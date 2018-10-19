@@ -29,5 +29,7 @@ class AuthenticationHelper
         if (isset($token->exp) && $token->exp < time()) {
             throw new ExpiredUserException("User with expired authentication");
         }
+
+        return true;
     }
 }
