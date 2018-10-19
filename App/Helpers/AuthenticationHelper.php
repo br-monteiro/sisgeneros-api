@@ -15,14 +15,15 @@ class AuthenticationHelper
      * @return boolean
      * @throws InvalidUserException
      * @throws ExpiredUserException
+     * @throws HeaderWithoutAuthorizationException
      */
     public static function isValidLogin(Request $request)
     {
         $token = ValidateAuthentication::token($request);
-        $currentHost = filter_input(INPUT_SERVER, 'HTTP_HOST');
+        $currentHost = $request->getServerParam('HTTP_HOST');
 
-        if (!$token || (isset($token->iss) && $token->iss !== $currentHost)) {
-            throw new InvalidUserException("Invalid User");
+        if (isset($token->iss) && $token->iss !== $currentHost) {
+            throw new InvalidUserException("Host with access denied");
         }
 
         if (isset($token->exp) && $token->exp < time()) {

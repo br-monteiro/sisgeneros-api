@@ -2,6 +2,7 @@
 namespace App\System;
 
 use HTR\Common\Json;
+use App\Entities\Users;
 
 class Configuration
 {
@@ -14,7 +15,10 @@ class Configuration
     const JSON_SCHEMA = '../App/json-schemes/';
     const EXPIRATE_TOKEN = 2592000; // 30 days
     const MAX_RESULTS = 50;
-    const ALLOW_CORS = [];
+    const USER_ENTITY = Users::class;
+    const ALLOW_CORS = [
+        'localhost:8080'
+    ];
     const ALLOW_HEADERS = [
         'X-PINGOTHER',
         'Content-Type',

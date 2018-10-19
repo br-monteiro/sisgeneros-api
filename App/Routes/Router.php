@@ -34,5 +34,7 @@ class Router
         MenuDaysRoute::setUp($app);
         // biddings items
         BiddingsItemsRoute::setUp($app);
+        // stock controls
+        StockControlsRoute::setUp($app);
     }
 }

@@ -47,12 +47,14 @@ class AuthModel extends AbstractModel
 
             $user = $entity->getUsers();
 
+            $profile = self::getAllProfiles($user->getId());
+
             $userData = [
                 'expiration_sec' => cfg::EXPIRATE_TOKEN,
                 'host' => cfg::htrFileConfigs()->devmode ? cfg::HOST_DEV : cfg::HOST_PRD,
                 'userdata' => [
                     'id' => $user->getId(),
-                    'profiles' => self::getAllProfiles($user->getId())
+                    'profiles' => $profile
                 ]
             ];
 
@@ -62,8 +64,9 @@ class AuthModel extends AbstractModel
                     "data" => [
                         "userId" => $user->getId(),
                         "userName" => $user->getName(),
-                        'militaryPost' => $user->getMilitaryPost(),
-                        'isMaster' => $user->getIsMaster(),
+                        "userMilitaryPost" => $user->getMilitaryPost(),
+                        "userProfile" => $profile,
+                        "isMaster" => $user->getIsMaster(),
                         "token" => Authenticator::generateToken($userData)
                     ]
                     ], 200);
