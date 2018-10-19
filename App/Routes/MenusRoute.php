@@ -10,6 +10,14 @@ class MenusRoute
 
     public static function setUp(App $app)
     {
+        $app->options('/api/v1/menus', function() {
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        });
+
+        $app->options('/api/v1/menus/{id:[0-9]+}', function() {
+            header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
+        });
+
         $app->group('', function() {
                 $this->get('/api/v1/menus', MenusController::class . ":findAll");
 
@@ -17,17 +25,9 @@ class MenusRoute
 
                 $this->post('/api/v1/menus', MenusController::class . ":create");
 
-                $this->options('/api/v1/menus', function() {
-                    header("Access-Control-Allow-Methods: POST, OPTIONS");
-                });
-
                 $this->put('/api/v1/menus/{id:[0-9]+}', MenusController::class . ":update");
 
                 $this->delete('/api/v1/menus/{id:[0-9]+}', MenusController::class . ":remove");
-
-                $this->options('/api/v1/menus/{id:[0-9]+}', function() {
-                    header("Access-Control-Allow-Methods: PUT, DELETE, OPTIONS");
-                });
             })
             ->add(AuthenticationMiddleware::class . ':verify');
     }

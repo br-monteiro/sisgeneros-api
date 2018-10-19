@@ -10,6 +10,14 @@ class StockMilitaryOrganizationsRoute
 
     public static function setUp(App $app)
     {
+        $app->options('/api/v1/stockmilitaryorganizations', function() {
+            header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        });
+
+        $app->options('/api/v1/stockmilitaryorganizations/{id:[0-9]+}', function() {
+            header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
+        });
+
         $app->group('', function() {
                 $this->get('/api/v1/stockmilitaryorganizations', StockMilitaryOrganizationsController::class . ":findAll");
 
@@ -17,17 +25,9 @@ class StockMilitaryOrganizationsRoute
 
                 $this->post('/api/v1/stockmilitaryorganizations', StockMilitaryOrganizationsController::class . ":create");
 
-                $this->options('/api/v1/stockmilitaryorganizations', function() {
-                    header("Access-Control-Allow-Methods: POST, OPTIONS");
-                });
-
                 $this->put('/api/v1/stockmilitaryorganizations/{id:[0-9]+}', StockMilitaryOrganizationsController::class . ":update");
 
                 $this->delete('/api/v1/stockmilitaryorganizations/{id:[0-9]+}', StockMilitaryOrganizationsController::class . ":remove");
-
-                $this->options('/api/v1/stockmilitaryorganizations/{id:[0-9]+}', function() {
-                    header("Access-Control-Allow-Methods: PUT, DELETE, OPTIONS");
-                });
             })
             ->add(AuthenticationMiddleware::class . ':verify');
     }
