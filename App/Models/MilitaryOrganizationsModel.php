@@ -190,7 +190,7 @@ class MilitaryOrganizationsModel extends AbstractModel
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
-                        "details" => Json::getValidateErrors()
+                        "error" => Json::getValidateErrors()
                         ], 400);
             }
 
