@@ -34,6 +34,16 @@ class RecipesPatternsController
      * @param Response $response
      * @return Response
      */
+    public static function findAllRecipesItemsByRecipesId(Request $request, Response $response, $args): Response
+    {
+        return RecipesPatternsModel::findAllRecipesItemsByRecipesId($request, $response, $args['id']);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public static function create(Request $request, Response $response): Response
     {
         return RecipesPatternsModel::create($request, $response);

@@ -49,6 +49,30 @@ class RecipesPatternsModel extends AbstractModel
     }
 
     /**
+     * Returns all register
+     * @param Response $response
+     * @return Response
+     */
+    public static function findAllRecipesItemsByRecipesId(Request $request, Response $response, int $recipesId): Response
+    {
+        try {
+
+            $repository = db::em()->getRepository(RecipesPatternsItems::class);
+            $entity = $repository->findBy(['recipesPatterns' => $recipesId]);
+
+            return $response->withJson([
+                    "message" => "",
+                    "status" => "success",
+                    "data" => self::outputValidate($entity)
+                        ->withoutAttribute('recipesPatterns')
+                        ->run()
+                    ], 200);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    /**
      * Return one register by ID
      * @param int $id
      * @param Response $response
@@ -175,7 +199,7 @@ class RecipesPatternsModel extends AbstractModel
                 return $response->withJson([
                         "message" => "There are wrong fields in submission",
                         "status" => "error",
-                        "details" => Json::getValidateErrors()
+                        "error" => Json::getValidateErrors()
                         ], 400);
             }
 
