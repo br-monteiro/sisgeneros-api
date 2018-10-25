@@ -44,6 +44,16 @@ class RecipesPatternsController
      * @param Response $response
      * @return Response
      */
+    public static function findRecipeItemsByRecipesId(Request $request, Response $response, $args): Response
+    {
+        return RecipesPatternsModel::findRecipeItemsByRecipesId($args['id'], $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public static function create(Request $request, Response $response): Response
     {
         return RecipesPatternsModel::create($request, $response);
@@ -66,8 +76,30 @@ class RecipesPatternsController
      * @param array $args
      * @return Response
      */
+    public static function updateRecipesItems(Request $request, Response $response, $args): Response
+    {
+        return RecipesPatternsModel::updateRecipesItems($args['id'], $request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
     public static function remove(Request $request, Response $response, $args): Response
     {
         return RecipesPatternsModel::remove($args['id'], $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function removeRecipesItems(Request $request, Response $response, $args): Response
+    {
+        return RecipesPatternsModel::removeRecipesItems($args['id'], $response);
     }
 }
