@@ -109,6 +109,39 @@ class RecipesPatternsModel extends AbstractModel
     }
 
     /**
+     * Return one register by ID
+     * @param int $id
+     * @param Response $response
+     * @return Response
+     */
+    public static function findRecipeItemsByRecipesId(int $id, Response $response): Response
+    {
+        try {
+            $repository = db::em()->getRepository(RecipesPatternsItems::class);
+            $entity = $repository->find($id);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "Recipe not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            return $response->withJson([
+                    "message" => "",
+                    "status" => "success",
+                    "data" => self::outputValidate($entity)
+                        ->withoutAttribute('recipesPatterns')
+                        ->run()
+                    ], 200);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    /**
      * Register new value
      * @param Request $request
      * @param Response $response
@@ -223,6 +256,54 @@ class RecipesPatternsModel extends AbstractModel
     }
 
     /**
+     * Update one register by ID
+     * @param int $id
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public static function updateRecipesItems(int $id, Request $request, Response $response): Response
+    {
+        $data = json_decode($request->getBody()->getContents()) ?? [];
+
+        try {
+            $repository = db::em()->getRepository(RecipesPatternsItems::class);
+            $entity = $repository->find($id);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "Recipe not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            if (!self::inputValidate($data, 'recipes_patterns_items_schema.json')) {
+                return $response->withJson([
+                        "message" => "There are wrong fields in submission",
+                        "status" => "error",
+                        "error" => Json::getValidateErrors()
+                        ], 400);
+            }
+
+            $entity->setName($data->name);
+
+            db::em()->flush();
+
+            return $response->withJson([
+                    "message" => "Registry updated successfully",
+                    "status" => "success",
+                    "data" => self::outputValidate($entity)
+                        ->withoutAttribute('recipesPatterns')
+                        ->run()
+                    ], 200);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    /**
      * Remove one register by ID
      * @param int $id
      * @param Response $response
@@ -232,6 +313,36 @@ class RecipesPatternsModel extends AbstractModel
     {
         try {
             $repository = db::em()->getRepository(RecipesPatterns::class);
+            $entity = $repository->find($id);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "Recipe not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            db::em()->remove($entity);
+            db::em()->flush();
+
+            return $response->withJson("", 204);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    /**
+     * Remove one register by ID
+     * @param int $id
+     * @param Response $response
+     * @return Response
+     */
+    public static function removeRecipesItems(int $id, Response $response): Response
+    {
+        try {
+            $repository = db::em()->getRepository(RecipesPatternsItems::class);
             $entity = $repository->find($id);
 
             if (!$entity) {
