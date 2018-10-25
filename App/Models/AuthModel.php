@@ -85,7 +85,7 @@ class AuthModel extends AbstractModel
         try {
             $query = ""
                 . "SELECT "
-                . "mo.id AS militaryOrganizationId, uhmo.profile "
+                . "mo.id AS militaryOrganizationId, uhmo.profile, uhmo.default "
                 . "FROM users_has_military_organizations AS uhmo "
                 . "INNER JOIN military_organizations AS mo ON mo.id = uhmo.military_organizations_id "
                 . "WHERE uhmo.users_id = ?";
