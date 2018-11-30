@@ -39,7 +39,9 @@ class UsersModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('militaryOrganizations', function($e) {
+                                return self::returnOmName($e->getId());
+                            }, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -74,7 +76,9 @@ class UsersModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('militaryOrganizations', function($e) {
+                                return self::returnOmName($e->getId());
+                            })
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -111,7 +115,6 @@ class UsersModel extends AbstractModel
             $entity->setFullName($data->fullName);
             $entity->setMilitaryPost($data->militaryPost);
             $entity->setNip($data->nip);
-            $entity->setIsMaster('no');
             $entity->setActive('yes');
             db::em()->persist($entity);
             // flush transaction
@@ -187,6 +190,7 @@ class UsersModel extends AbstractModel
             $entity->setFullName($data->fullName);
             $entity->setMilitaryPost($data->militaryPost);
             $entity->setNip($data->nip);
+            $entity->setActive($data->active);
 
             db::em()->flush();
 
@@ -235,5 +239,19 @@ class UsersModel extends AbstractModel
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
         }
+    }
+
+    private static function returnOmName(int $userId)
+    {
+        $query = ""
+            . "SELECT mo.id, mo.name "
+            . "FROM military_organizations AS mo "
+            . "INNER JOIN users_has_military_organizations AS uhmo "
+            . "ON uhmo.military_organizations_id = mo.id AND uhmo.users_id = $userId "
+            . "ORDER BY mo.name";
+        return db::em()
+                ->getConnection()
+                ->query($query)
+                ->fetchAll(\PDO::FETCH_OBJ);
     }
 }
