@@ -53,13 +53,6 @@ class Users implements EntityInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="is_master", type="string", length=3, nullable=false)
-     */
-    private $isMaster;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="active", type="string", length=3, nullable=false)
      */
     private $active;
@@ -112,11 +105,6 @@ class Users implements EntityInterface
         return $this->nip;
     }
 
-    public function getIsMaster()
-    {
-        return $this->isMaster;
-    }
-
     public function getActive()
     {
         return $this->active;
@@ -148,12 +136,6 @@ class Users implements EntityInterface
     public function setNip($nip)
     {
         $this->nip = $nip;
-        return $this;
-    }
-
-    public function setIsMaster($isMaster)
-    {
-        $this->isMaster = $isMaster;
         return $this;
     }
 

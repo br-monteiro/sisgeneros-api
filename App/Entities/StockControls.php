@@ -46,7 +46,7 @@ class StockControls implements EntityInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="fiscal_document", type="string", length=15, nullable=false)
+     * @ORM\Column(name="fiscal_document", type="string", length=15, nullable=true)
      */
     private $fiscalDocument;
 
