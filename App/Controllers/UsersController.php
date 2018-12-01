@@ -82,4 +82,15 @@ class UsersController
     {
         return UsersModel::allOmsFromUser($args['id'], $request, $response);
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function saveProfile(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::saveProfile($args['id'], $request, $response);
+    }
 }

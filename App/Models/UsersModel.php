@@ -306,4 +306,61 @@ class UsersModel extends AbstractModel
             "data" => $result
             ], 200);
     }
+
+    /**
+     * Update one register by ID
+     * @param int $userId
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public static function saveProfile(int $userId, Request $request, Response $response): Response
+    {
+        $data = (object) $request->getParsedBody() ?? [];
+
+        try {
+            $repository = db::em()->getRepository(Users::class);
+            $entity = $repository->find($userId);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "User not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            if (!self::inputValidate($data, 'users_has_military_organizations_schema.json')) {
+                return $response->withJson([
+                        "message" => "There are wrong fields in submission",
+                        "status" => "error",
+                        "error" => Json::getValidateErrors()
+                        ], 400);
+            }
+
+            $query = "INSERT INTO users_has_military_organizations VALUES (:userId, :omId, :profile, 'no')";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+                ':omId' => $data->militaryOrganizationsId,
+                ':profile' => $data->profile
+            ]);
+
+            $result = self::returnOmName($userId);
+
+            return $response->withJson([
+                    "message" => "Registry updated successfully",
+                    "status" => "success",
+                    "data" => $result,
+                    ], 200);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        } catch (UniqueConstraintViolationException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getPrevious()->getMessage(),
+                    "status" => "warning"
+                    ], 400);
+        }
+    }
 }

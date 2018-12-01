@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "properties": {
+        "militaryOrganizationsId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
+        "profile": {
+            "type": "string",
+            "enum": ["root", "admin", "manager", "viewer", "requester"]
+        }
+    },
+    "required": ["militaryOrganizationsId", "profile"]
+}
