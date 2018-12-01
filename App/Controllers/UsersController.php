@@ -60,4 +60,59 @@ class UsersController
     {
         return UsersModel::remove($args['id'], $response);
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function autocompleteOm(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::autocompleteOm($request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function allOmsFromUser(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::allOmsFromUser($args['id'], $request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function saveProfile(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::saveProfile($args['id'], $request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function removeProfile(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::removeProfile($args, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function changeDefault(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::changeDefault($args, $request, $response);
+    }
 }

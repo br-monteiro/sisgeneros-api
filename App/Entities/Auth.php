@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * Auth
  *
- * @ORM\Table(name="auth", uniqueConstraints={@ORM\UniqueConstraint(name="users_id_UNIQUE", columns={"users_id"})}, indexes={@ORM\Index(name="fk_auth_users_idx", columns={"users_id"})})
+ * @ORM\Table(name="auth", uniqueConstraints={@ORM\UniqueConstraint(name="users_id_UNIQUE", columns={"users_id"}), @ORM\UniqueConstraint(name="username_UNIQUE", columns={"username"})}, indexes={@ORM\Index(name="fk_auth_users_idx", columns={"users_id"})})
  * @ORM\Entity
  */
 class Auth implements EntityInterface

@@ -39,7 +39,9 @@ class UsersModel extends AbstractModel
                     "limit" => $limit,
                     "offset" => $offset,
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('militaryOrganizations', function($e) {
+                                return self::returnOmName($e->getId());
+                            }, true)
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -74,7 +76,9 @@ class UsersModel extends AbstractModel
                     "message" => "",
                     "status" => "success",
                     "data" => self::outputValidate($entity)
-                        ->withoutAttribute('militaryOrganizations')
+                        ->withAttribute('militaryOrganizations', function($e) {
+                                return self::returnOmName($e->getId());
+                            })
                         ->run()
                     ], 200);
         } catch (ORMException $ex) {
@@ -111,7 +115,6 @@ class UsersModel extends AbstractModel
             $entity->setFullName($data->fullName);
             $entity->setMilitaryPost($data->militaryPost);
             $entity->setNip($data->nip);
-            $entity->setIsMaster('no');
             $entity->setActive('yes');
             db::em()->persist($entity);
             // flush transaction
@@ -187,6 +190,7 @@ class UsersModel extends AbstractModel
             $entity->setFullName($data->fullName);
             $entity->setMilitaryPost($data->militaryPost);
             $entity->setNip($data->nip);
+            $entity->setActive($data->active);
 
             db::em()->flush();
 
@@ -232,6 +236,211 @@ class UsersModel extends AbstractModel
             db::em()->flush();
 
             return $response->withJson("", 204);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    private static function returnOmName(int $userId)
+    {
+        $query = ""
+            . "SELECT mo.id, mo.name, "
+            . "mo.naval_indicative as navalIndicative, "
+            . "mo.is_ceim as isCeim, "
+            . "uhmo.default, "
+            . "uhmo.profile "
+            . "FROM military_organizations AS mo "
+            . "INNER JOIN users_has_military_organizations AS uhmo "
+            . "ON uhmo.military_organizations_id = mo.id AND uhmo.users_id = $userId "
+            . "ORDER BY mo.name";
+        return db::em()
+                ->getConnection()
+                ->query($query)
+                ->fetchAll(\PDO::FETCH_OBJ);
+    }
+
+    public static function autocompleteOm(Request $request, Response $response): Response
+    {
+        $term = $request->getParam('query');
+        $limit = (int) ($request->getParam('limit') ?? 50);
+        $query = ""
+            . "SELECT "
+            . "    mo.id, "
+            . "    mo.name, "
+            . "    mo.naval_indicative as navalIndicative, "
+            . "    mo.is_ceim as isCeim "
+            . "FROM military_organizations AS mo "
+            . "WHERE "
+            . "    mo.name LIKE :term "
+            . "    OR mo.naval_indicative LIKE :term "
+            . "    OR mo.uasg_number LIKE :term "
+            . "LIMIT {$limit}";
+
+        $stmt = db::em()->getConnection() ->prepare($query);
+        $stmt->execute([
+            ':term' => '%' . $term . '%'
+        ]);
+        $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        return $response->withJson([
+            "message" => "Autocomplete for OMs of User",
+            "status" => "success",
+            "data" => $result
+            ], 200);
+    }
+
+    /**
+     * @param int $userId
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public static function allOmsFromUser(int $userId, Request $request, Response $response): Response
+    {
+
+        $result = self::returnOmName($userId);
+
+        return $response->withJson([
+            "message" => "All OMs by User",
+            "status" => "success",
+            "data" => $result
+            ], 200);
+    }
+
+    /**
+     * Update one register by ID
+     * @param int $userId
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public static function saveProfile(int $userId, Request $request, Response $response): Response
+    {
+        $data = (object) $request->getParsedBody() ?? [];
+
+        try {
+            $repository = db::em()->getRepository(Users::class);
+            $entity = $repository->find($userId);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "User not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            if (!self::inputValidate($data, 'users_has_military_organizations_schema.json')) {
+                return $response->withJson([
+                        "message" => "There are wrong fields in submission",
+                        "status" => "error",
+                        "error" => Json::getValidateErrors()
+                        ], 400);
+            }
+
+            $query = "INSERT INTO users_has_military_organizations VALUES (:userId, :omId, :profile, 'no')";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+                ':omId' => $data->militaryOrganizationsId,
+                ':profile' => $data->profile
+            ]);
+
+            $result = self::returnOmName($userId);
+
+            return $response->withJson([
+                    "message" => "Registry updated successfully",
+                    "status" => "success",
+                    "data" => $result,
+                    ], 200);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        } catch (UniqueConstraintViolationException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getPrevious()->getMessage(),
+                    "status" => "warning"
+                    ], 400);
+        }
+    }
+
+    /**
+     * Remove user profile
+     * @param int $args
+     * @param Response $response
+     * @return Response
+     */
+    public static function removeProfile(array $args, Response $response): Response
+    {
+        try {
+
+            $userId = (int) $args['userId'];
+            $omId = (int) $args['omId'];
+
+            $repository = db::em()->getRepository(Users::class);
+            $entity = $repository->find($userId);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "User not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            $query = "DELETE FROM users_has_military_organizations WHERE users_has_military_organizations.users_id = :userId AND users_has_military_organizations.military_organizations_id = :omId ";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+                ':omId' => $omId,
+            ]);
+
+            return $response->withJson("", 204);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    /**
+     * Change the default OM
+     * @param int $args
+     * @param Response $response
+     * @return Response
+     */
+    public static function changeDefault(array $args, Request $request, Response $response): Response
+    {
+        try {
+
+            $userId = (int) $args['userId'];
+            $omId = (int) $args['omId'];
+
+            $repository = db::em()->getRepository(Users::class);
+            $entity = $repository->find($userId);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "User not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            $query = "UPDATE users_has_military_organizations SET users_has_military_organizations.default = 'no'  WHERE users_has_military_organizations.users_id = :userId";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+            ]);
+            $query = "UPDATE users_has_military_organizations SET users_has_military_organizations.default = 'yes'  WHERE users_has_military_organizations.users_id = :userId AND users_has_military_organizations.military_organizations_id = :omId";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+                ':omId' => $omId,
+            ]);
+
+            return self::allOmsFromUser($userId, $request, $response);
+
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
         }

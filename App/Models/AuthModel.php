@@ -36,12 +36,17 @@ class AuthModel extends AbstractModel
             $repository = db::em()->getRepository(Auth::class);
             $entity = $repository->findOneBy(["username" => md5($data->username)]);
 
-            if (!$entity || !password_verify($data->password . cfg::SALT_KEY, $entity->getPassword())) {
+            if (
+                !$entity ||
+                !password_verify($data->password . cfg::SALT_KEY, $entity->getPassword()) ||
+                $entity->getUsers()->getActive() == "no"
+            ) {
                 // no have results
                 return $response
                         ->withJson([
                             "message" => "Invalid User",
-                            "status" => "error"
+                            "status" => "error",
+                            "t" => $entity->getUsers()->getActive()
                             ], 401);
             }
 
@@ -66,7 +71,6 @@ class AuthModel extends AbstractModel
                         "userName" => $user->getName(),
                         "userMilitaryPost" => $user->getMilitaryPost(),
                         "userProfile" => $profile,
-                        "isMaster" => $user->getIsMaster(),
                         "token" => Authenticator::generateToken($userData)
                     ]
                     ], 200);
