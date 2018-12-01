@@ -93,4 +93,26 @@ class UsersController
     {
         return UsersModel::saveProfile($args['id'], $request, $response);
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function removeProfile(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::removeProfile($args, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function changeDefault(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::changeDefault($args, $request, $response);
+    }
 }

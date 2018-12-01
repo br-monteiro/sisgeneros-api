@@ -26,6 +26,14 @@ class UsersRoute
             header("Access-Control-Allow-Methods: GET, PUT, OPTIONS");
         });
 
+        $app->options('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms', function() {
+            header("Access-Control-Allow-Methods: DELETE, OPTIONS");
+        });
+
+        $app->options('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms/changedefault', function() {
+            header("Access-Control-Allow-Methods: PUT, OPTIONS");
+        });
+
         $app->group('', function() {
                 $this->get('/api/v1/users', UsersController::class . ":findAll");
 
@@ -37,11 +45,15 @@ class UsersRoute
 
                 $this->put('/api/v1/users/{id:[0-9]+}/oms', UsersController::class . ":saveProfile");
 
-                $this->post('/api/v1/users', UsersController::class . ":create");
-
                 $this->put('/api/v1/users/{id:[0-9]+}', UsersController::class . ":update");
 
+                $this->put('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms/changedefault', UsersController::class . ":changeDefault");
+
+                $this->post('/api/v1/users', UsersController::class . ":create");
+
                 $this->delete('/api/v1/users/{id:[0-9]+}', UsersController::class . ":remove");
+
+                $this->delete('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms', UsersController::class . ":removeProfile");
             })
             ->add(AuthenticationMiddleware::class . ':verify');
     }

@@ -363,4 +363,86 @@ class UsersModel extends AbstractModel
                     ], 400);
         }
     }
+
+    /**
+     * Remove user profile
+     * @param int $args
+     * @param Response $response
+     * @return Response
+     */
+    public static function removeProfile(array $args, Response $response): Response
+    {
+        try {
+
+            $userId = (int) $args['userId'];
+            $omId = (int) $args['omId'];
+
+            $repository = db::em()->getRepository(Users::class);
+            $entity = $repository->find($userId);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "User not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            $query = "DELETE FROM users_has_military_organizations WHERE users_has_military_organizations.users_id = :userId AND users_has_military_organizations.military_organizations_id = :omId ";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+                ':omId' => $omId,
+            ]);
+
+            return $response->withJson("", 204);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
+
+    /**
+     * Change the default OM
+     * @param int $args
+     * @param Response $response
+     * @return Response
+     */
+    public static function changeDefault(array $args, Request $request, Response $response): Response
+    {
+        try {
+
+            $userId = (int) $args['userId'];
+            $omId = (int) $args['omId'];
+
+            $repository = db::em()->getRepository(Users::class);
+            $entity = $repository->find($userId);
+
+            if (!$entity) {
+                // no have results
+                return $response
+                        ->withJson([
+                            "message" => "User not found",
+                            "status" => "error"
+                            ], 404);
+            }
+
+            $query = "UPDATE users_has_military_organizations SET users_has_military_organizations.default = 'no'  WHERE users_has_military_organizations.users_id = :userId";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+            ]);
+            $query = "UPDATE users_has_military_organizations SET users_has_military_organizations.default = 'yes'  WHERE users_has_military_organizations.users_id = :userId AND users_has_military_organizations.military_organizations_id = :omId";
+            $stmt = db::em()->getConnection()->prepare($query);
+            $stmt->execute([
+                ':userId' => $userId,
+                ':omId' => $omId,
+            ]);
+
+            return self::allOmsFromUser($userId, $request, $response);
+
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
 }
