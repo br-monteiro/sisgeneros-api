@@ -244,7 +244,11 @@ class UsersModel extends AbstractModel
     private static function returnOmName(int $userId)
     {
         $query = ""
-            . "SELECT mo.id, mo.name "
+            . "SELECT mo.id, mo.name, "
+            . "mo.naval_indicative as navalIndicative, "
+            . "mo.is_ceim as isCeim, "
+            . "uhmo.default, "
+            . "uhmo.profile "
             . "FROM military_organizations AS mo "
             . "INNER JOIN users_has_military_organizations AS uhmo "
             . "ON uhmo.military_organizations_id = mo.id AND uhmo.users_id = $userId "
@@ -253,5 +257,53 @@ class UsersModel extends AbstractModel
                 ->getConnection()
                 ->query($query)
                 ->fetchAll(\PDO::FETCH_OBJ);
+    }
+
+    public static function autocompleteOm(Request $request, Response $response): Response
+    {
+        $term = $request->getParam('query');
+        $limit = (int) ($request->getParam('limit') ?? 50);
+        $query = ""
+            . "SELECT "
+            . "    mo.id, "
+            . "    mo.name, "
+            . "    mo.naval_indicative as navalIndicative, "
+            . "    mo.is_ceim as isCeim "
+            . "FROM military_organizations AS mo "
+            . "WHERE "
+            . "    mo.name LIKE :term "
+            . "    OR mo.naval_indicative LIKE :term "
+            . "    OR mo.uasg_number LIKE :term "
+            . "LIMIT {$limit}";
+
+        $stmt = db::em()->getConnection() ->prepare($query);
+        $stmt->execute([
+            ':term' => '%' . $term . '%'
+        ]);
+        $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        return $response->withJson([
+            "message" => "Autocomplete for OMs of User",
+            "status" => "success",
+            "data" => $result
+            ], 200);
+    }
+
+    /**
+     * @param int $userId
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public static function allOmsFromUser(int $userId, Request $request, Response $response): Response
+    {
+
+        $result = self::returnOmName($userId);
+
+        return $response->withJson([
+            "message" => "All OMs by User",
+            "status" => "success",
+            "data" => $result
+            ], 200);
     }
 }

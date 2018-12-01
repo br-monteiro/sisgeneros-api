@@ -60,4 +60,26 @@ class UsersController
     {
         return UsersModel::remove($args['id'], $response);
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function autocompleteOm(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::autocompleteOm($request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function allOmsFromUser(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::allOmsFromUser($args['id'], $request, $response);
+    }
 }

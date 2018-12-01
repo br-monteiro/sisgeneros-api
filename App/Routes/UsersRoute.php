@@ -18,10 +18,22 @@ class UsersRoute
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
+        $app->options('/api/v1/users/autocomplete/oms', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
+
+        $app->options('/api/v1/users/{id:[0-9]+}/oms', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
+
         $app->group('', function() {
                 $this->get('/api/v1/users', UsersController::class . ":findAll");
 
                 $this->get('/api/v1/users/{id:[0-9]+}', UsersController::class . ":find");
+
+                $this->get('/api/v1/users/autocomplete/oms', UsersController::class . ":autocompleteOm");
+
+                $this->get('/api/v1/users/{id:[0-9]+}/oms', UsersController::class . ":allOmsFromUser");
 
                 $this->post('/api/v1/users', UsersController::class . ":create");
 
