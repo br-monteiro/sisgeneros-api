@@ -31,10 +31,15 @@
             "minimum": 1,
             "maximum": 9999999999
         },
+        "stockManager": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999999999
+        },
         "isCeim": {
             "type": "string",
             "enum": ["yes", "no"]
         }
     },
-    "required": ["name", "navalIndicative", "uasgNumber", "munitionManager", "munitionFiel", "fiscalAgent"]
+    "required": ["name", "navalIndicative", "uasgNumber", "munitionManager", "munitionFiel", "fiscalAgent", "stockManager"]
 }

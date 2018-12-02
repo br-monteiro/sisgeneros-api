@@ -51,6 +51,9 @@ class MilitaryOrganizationsModel extends AbstractModel
                             },
                             'munitionFiel' => function($e) {
                                 return $e->getMunitionFiel()->getFullName();
+                            },
+                            'stockManager' => function($e) {
+                                return $e->getStockManager()->getFullName();
                             }
                             ], null, true)
                         ->run()
@@ -94,7 +97,8 @@ class MilitaryOrganizationsModel extends AbstractModel
                         ->withAttribute([
                             'munitionManager' => $entity->getMunitionManager()->getFullName(),
                             'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
-                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
+                            'munitionFiel' => $entity->getStockManager()->getFullName(),
+                            'stockManager' => $entity->getMunitionFiel()->getFullName()
                         ])
                         ->run()
                     ], 200);
@@ -131,6 +135,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $entity->setMunitionManager($usersRepository->find($data->munitionManager));
             $entity->setMunitionFiel($usersRepository->find($data->munitionFiel));
             $entity->setFiscalAgent($usersRepository->find($data->fiscalAgent));
+            $entity->setStockManager($usersRepository->find($data->stockManager));
             $entity->setIsCeim($data->isCeim ?? 'no');
 
             db::em()->persist($entity);
@@ -148,7 +153,8 @@ class MilitaryOrganizationsModel extends AbstractModel
                         ->withAttribute([
                             'munitionManager' => $entity->getMunitionManager()->getFullName(),
                             'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
-                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
+                            'munitionFiel' => $entity->getMunitionFiel()->getFullName(),
+                            'stockManager' => $entity->getMunitionFiel()->getFullName()
                         ])
                         ->run()
                     ], 201);
@@ -201,6 +207,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $entity->setMunitionManager($usersRepository->find($data->munitionManager));
             $entity->setMunitionFiel($usersRepository->find($data->munitionFiel));
             $entity->setFiscalAgent($usersRepository->find($data->fiscalAgent));
+            $entity->setStockManager($usersRepository->find($data->stockManager));
             $entity->setIsCeim($data->isCeim ?? 'no');
 
             db::em()->flush();
@@ -216,7 +223,8 @@ class MilitaryOrganizationsModel extends AbstractModel
                         ->withAttribute([
                             'munitionManager' => $entity->getMunitionManager()->getFullName(),
                             'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
-                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
+                            'munitionFiel' => $entity->getMunitionFiel()->getFullName(),
+                            'stockManager' => $entity->getMunitionFiel()->getFullName()
                         ])
                         ->run()
                     ], 200);
