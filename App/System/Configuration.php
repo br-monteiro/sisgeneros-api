@@ -34,7 +34,7 @@ class Configuration
         'password' => 'mysql-server-dev',
     ];
     // Production
-    const HOST_PRD = 'localhost';
+    const HOST_PRD = 'www.ceimbe.mb';
     // SECURITY KEY
     // DATABASE CONFIGS
     const DATABASE_CONFIGS_PRD = [
