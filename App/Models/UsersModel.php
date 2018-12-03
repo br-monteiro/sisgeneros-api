@@ -445,4 +445,37 @@ class UsersModel extends AbstractModel
             return self::commonError($response, $ex);
         }
     }
+
+    public static function autocomplete(Request $request, Response $response): Response
+    {
+        $term = $request->getParam('query');
+        $limit = (int) ($request->getParam('limit') ?? 50);
+        $query = ""
+            . "SELECT "
+            . "    us.id, "
+            . "    us.name, "
+            . "    us.full_name AS fullName, "
+            . "    us.military_post AS militaryPost, "
+            . "    us.nip "
+            . "FROM "
+            . "    users AS us "
+            . "WHERE "
+            . "    us.name LIKE :term "
+            . "    OR us.full_name LIKE :term "
+            . "    OR us.nip LIKE :term "
+            . "LIMIT {$limit}";
+
+        $stmt = db::em()->getConnection() ->prepare($query);
+        $stmt->execute([
+            ':term' => '%' . $term . '%'
+        ]);
+        $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        return $response->withJson([
+            "message" => "Autocomplete for Users",
+            "status" => "success",
+            "data" => $result
+            ], 200);
+    }
+
 }
