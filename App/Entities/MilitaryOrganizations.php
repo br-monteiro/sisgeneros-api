@@ -8,7 +8,7 @@ use HTR\Interfaces\Entities\EntityInterface;
 /**
  * MilitaryOrganizations
  *
- * @ORM\Table(name="military_organizations", uniqueConstraints={@ORM\UniqueConstraint(name="naval_indicative_UNIQUE", columns={"naval_indicative"}), @ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"}), @ORM\UniqueConstraint(name="uasg_number_UNIQUE", columns={"uasg_number"})}, indexes={@ORM\Index(name="fk_military_organizations_users1_idx", columns={"munition_manager"}), @ORM\Index(name="fk_military_organizations_users2_idx", columns={"fiscal_agent"}), @ORM\Index(name="fk_military_organizations_users3_idx", columns={"munition_fiel"})})
+ * @ORM\Table(name="military_organizations", uniqueConstraints={@ORM\UniqueConstraint(name="naval_indicative_UNIQUE", columns={"naval_indicative"}), @ORM\UniqueConstraint(name="name_UNIQUE", columns={"name"}), @ORM\UniqueConstraint(name="uasg_number_UNIQUE", columns={"uasg_number"})}, indexes={@ORM\Index(name="fk_military_organizations_users1_idx", columns={"munition_manager"}), @ORM\Index(name="fk_military_organizations_users2_idx", columns={"fiscal_agent"}), @ORM\Index(name="fk_military_organizations_users3_idx", columns={"munition_fiel"}), @ORM\Index(name="fk_military_organizations_users4_idx", columns={"stock_manager"})})
  * @ORM\Entity
  */
 class MilitaryOrganizations implements EntityInterface
@@ -81,6 +81,16 @@ class MilitaryOrganizations implements EntityInterface
     private $munitionFiel;
 
     /**
+     * @var \App\Entities\Users
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entities\Users")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="stock_manager", referencedColumnName="id")
+     * })
+     */
+    private $stockManager;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\ManyToMany(targetEntity="App\Entities\Biddings", mappedBy="militaryOrganizations")
@@ -143,6 +153,11 @@ class MilitaryOrganizations implements EntityInterface
         return $this->munitionFiel;
     }
 
+    public function getStockManager()
+    {
+        return $this->stockManager;
+    }
+
     public function getBiddings()
     {
         return $this->biddings;
@@ -192,6 +207,12 @@ class MilitaryOrganizations implements EntityInterface
     public function setMunitionFiel($munitionFiel)
     {
         $this->munitionFiel = $munitionFiel;
+        return $this;
+    }
+
+    public function setStockManager($stockManager)
+    {
+        $this->stockManager = $stockManager;
         return $this;
     }
 

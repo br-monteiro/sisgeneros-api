@@ -115,4 +115,15 @@ class UsersController
     {
         return UsersModel::changeDefault($args, $request, $response);
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function autocomplete(Request $request, Response $response, $args): Response
+    {
+        return UsersModel::autocomplete($request, $response);
+    }
 }

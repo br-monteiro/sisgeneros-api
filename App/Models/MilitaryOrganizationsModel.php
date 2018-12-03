@@ -29,7 +29,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(MilitaryOrganizations::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            $entity = $repository->findBy([], ['name' => 'ASC'], $limit, $offset);
 
             return $response->withJson([
                     "message" => "",
@@ -51,6 +51,9 @@ class MilitaryOrganizationsModel extends AbstractModel
                             },
                             'munitionFiel' => function($e) {
                                 return $e->getMunitionFiel()->getFullName();
+                            },
+                            'stockManager' => function($e) {
+                                return $e->getStockManager()->getFullName();
                             }
                             ], null, true)
                         ->run()
@@ -92,9 +95,30 @@ class MilitaryOrganizationsModel extends AbstractModel
                             'users'
                         ])
                         ->withAttribute([
-                            'munitionManager' => $entity->getMunitionManager()->getFullName(),
-                            'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
-                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
+                            'munitionManager' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getMunitionManager()->getId();
+                                $obj->name = $e->getMunitionManager()->getFullName();
+                                return $obj;
+                            },
+                            'fiscalAgent' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getFiscalAgent()->getId();
+                                $obj->name = $e->getFiscalAgent()->getFullName();
+                                return $obj;
+                            },
+                            'munitionFiel' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getMunitionFiel()->getId();
+                                $obj->name = $e->getMunitionFiel()->getFullName();
+                                return $obj;
+                            },
+                            'stockManager' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getStockManager()->getId();
+                                $obj->name = $e->getStockManager()->getFullName();
+                                return $obj;
+                            }
                         ])
                         ->run()
                     ], 200);
@@ -131,6 +155,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $entity->setMunitionManager($usersRepository->find($data->munitionManager));
             $entity->setMunitionFiel($usersRepository->find($data->munitionFiel));
             $entity->setFiscalAgent($usersRepository->find($data->fiscalAgent));
+            $entity->setStockManager($usersRepository->find($data->stockManager));
             $entity->setIsCeim($data->isCeim ?? 'no');
 
             db::em()->persist($entity);
@@ -146,9 +171,30 @@ class MilitaryOrganizationsModel extends AbstractModel
                             'users'
                         ])
                         ->withAttribute([
-                            'munitionManager' => $entity->getMunitionManager()->getFullName(),
-                            'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
-                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
+                            'munitionManager' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getMunitionManager()->getId();
+                                $obj->name = $e->getMunitionManager()->getFullName();
+                                return $obj;
+                            },
+                            'fiscalAgent' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getFiscalAgent()->getId();
+                                $obj->name = $e->getFiscalAgent()->getFullName();
+                                return $obj;
+                            },
+                            'munitionFiel' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getMunitionFiel()->getId();
+                                $obj->name = $e->getMunitionFiel()->getFullName();
+                                return $obj;
+                            },
+                            'stockManager' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getStockManager()->getId();
+                                $obj->name = $e->getStockManager()->getFullName();
+                                return $obj;
+                            }
                         ])
                         ->run()
                     ], 201);
@@ -201,6 +247,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $entity->setMunitionManager($usersRepository->find($data->munitionManager));
             $entity->setMunitionFiel($usersRepository->find($data->munitionFiel));
             $entity->setFiscalAgent($usersRepository->find($data->fiscalAgent));
+            $entity->setStockManager($usersRepository->find($data->stockManager));
             $entity->setIsCeim($data->isCeim ?? 'no');
 
             db::em()->flush();
@@ -214,9 +261,30 @@ class MilitaryOrganizationsModel extends AbstractModel
                             'users'
                         ])
                         ->withAttribute([
-                            'munitionManager' => $entity->getMunitionManager()->getFullName(),
-                            'fiscalAgent' => $entity->getFiscalAgent()->getFullName(),
-                            'munitionFiel' => $entity->getMunitionFiel()->getFullName()
+                            'munitionManager' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getMunitionManager()->getId();
+                                $obj->name = $e->getMunitionManager()->getFullName();
+                                return $obj;
+                            },
+                            'fiscalAgent' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getFiscalAgent()->getId();
+                                $obj->name = $e->getFiscalAgent()->getFullName();
+                                return $obj;
+                            },
+                            'munitionFiel' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getMunitionFiel()->getId();
+                                $obj->name = $e->getMunitionFiel()->getFullName();
+                                return $obj;
+                            },
+                            'stockManager' => function($e) {
+                                $obj = new \stdClass();
+                                $obj->id = $e->getStockManager()->getId();
+                                $obj->name = $e->getStockManager()->getFullName();
+                                return $obj;
+                            }
                         ])
                         ->run()
                     ], 200);
