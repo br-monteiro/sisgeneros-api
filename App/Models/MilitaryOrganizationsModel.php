@@ -29,7 +29,7 @@ class MilitaryOrganizationsModel extends AbstractModel
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(MilitaryOrganizations::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            $entity = $repository->findBy([], ['name' => 'ASC'], $limit, $offset);
 
             return $response->withJson([
                     "message" => "",
