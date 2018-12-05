@@ -29,7 +29,7 @@ class BiddingsModel extends AbstractModel
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(Biddings::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            $entity = $repository->findBy([], ['year' => 'DESC', 'number' => 'ASC'], $limit, $offset);
 
             return $response->withJson([
                     "message" => "",

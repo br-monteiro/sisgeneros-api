@@ -24,9 +24,9 @@ class BiddingsItemsController
      * @param Response $response
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll(Request $request, Response $response, $args): Response
     {
-        return BiddingsItemsModel::findAll($request, $response);
+        return BiddingsItemsModel::findAll($args, $request, $response);
     }
 
     /**
@@ -59,5 +59,16 @@ class BiddingsItemsController
     public static function remove(Request $request, Response $response, $args): Response
     {
         return BiddingsItemsModel::remove($args['id'], $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function search(Request $request, Response $response, $args): Response
+    {
+        return BiddingsItemsModel::search($args, $request, $response);
     }
 }

@@ -17,19 +17,33 @@ class SuppliersModel extends AbstractModel
 
     /**
      * Returns all register
+     * @param array @args
      * @param Request $request The Resquest Object
      * @param Response $response The Response Object
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll($args, Request $request, Response $response): Response
     {
         try {
 
+            $term = $args['query'] ?? '';
             $paginator = paginator::buildAttributes($request, 'suppliers');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(Suppliers::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            if ($term) {
+                $query = $repository->createQueryBuilder('sp')
+                    ->where('sp.name LIKE :term')
+                    ->orWhere('sp.cnpj LIKE :term')
+                    ->setParameter('term', '%' . $term . '%')
+                    ->setFirstResult($offset)
+                    ->setMaxResults($limit)
+                    ->orderBy('sp.name')
+                    ->getQuery();
+                $entity = $query->getResult();
+            } else {
+                $entity = $repository->findBy([], null, $limit, $offset);
+            }
 
             return $response->withJson([
                     "message" => "",
