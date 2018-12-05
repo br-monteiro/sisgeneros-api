@@ -18,8 +18,14 @@ class SuppliersRoute
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
+        $app->options('/api/v1/suppliers/search', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
+
         $app->group('', function() {
                 $this->get('/api/v1/suppliers', SuppliersController::class . ":findAll");
+
+                $this->get('/api/v1/suppliers/search', SuppliersController::class . ":findAll");
 
                 $this->get('/api/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":find");
 

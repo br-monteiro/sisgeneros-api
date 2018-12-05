@@ -22,11 +22,12 @@ class SuppliersController
     /**
      * @param Request $request
      * @param Response $response
+     * @param array $args
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll(Request $request, Response $response, $args): Response
     {
-        return SuppliersModel::findAll($request, $response);
+        return SuppliersModel::findAll($args, $request, $response);
     }
 
     /**
