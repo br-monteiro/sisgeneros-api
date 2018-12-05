@@ -15,12 +15,13 @@ class PaginatorHelper
      * @param Request $request
      * @param string $entityName
      * @param string $field
+     * @param string $options
      * @return \stdClass
      */
-    public static function buildAttributes(Request $request, string $entityName, string $field = 'id'): \stdClass
+    public static function buildAttributes(Request $request, string $entityName, string $field = 'id', string $options = ''): \stdClass
     {
         try {
-            $allResults = db::em()->getConnection()->query("SELECT {$field} FROM {$entityName}")->rowCount();
+            $allResults = db::em()->getConnection()->query("SELECT {$field} FROM {$entityName} {$options}")->rowCount();
 
             $stdResult = new \stdClass();
             $limit = $request->getParam('limit');

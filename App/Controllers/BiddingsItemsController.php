@@ -60,4 +60,15 @@ class BiddingsItemsController
     {
         return BiddingsItemsModel::remove($args['id'], $response);
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public static function search(Request $request, Response $response, $args): Response
+    {
+        return BiddingsItemsModel::search($args, $request, $response);
+    }
 }

@@ -309,4 +309,49 @@ class BiddingsItemsModel extends AbstractModel
             throw new DoubleRegistrationException("A record with this data already exists");
         }
     }
+
+    /**
+     * @param array $args
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public static function search(array $args, Request $request, Response $response): Response
+    {
+        try {
+            $biddingId = $args['biddingId'] ?? 0;
+            $term = $request->getParam('query', time());
+            $paginator = paginator::buildAttributes($request, 'biddings_items', 'id', 'WHERE biddings_id = ' . $biddingId);
+            $limit = $paginator->limit;
+            $offset = $paginator->offset;
+            $repository = db::em()->getRepository(BiddingsItems::class);
+
+            $query = $repository->createQueryBuilder('bd')
+                ->where('bd.biddings = :bidding')
+                ->andWhere('bd.number LIKE :number OR bd.name LIKE :name')
+                ->setParameter('bidding', $biddingId)
+                ->setParameter('number', '%' . $term . '%')
+                ->setParameter('name', '%' . $term . '%')
+                ->add('orderBy', 'bd.number ASC')
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->getQuery();
+            $entity = $query->getResult();
+
+            return $response->withJson([
+                    "message" => "",
+                    "status" => "success",
+                    "allResults" => $paginator->allResults,
+                    "limit" => $limit,
+                    "offset" => $offset,
+                    "data" => self::outputValidate($entity)
+                        ->withAttribute(self::buildCallbacks(), null, true)
+                        ->run()
+                    ], 200);
+        } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        } catch (PaginatorException $ex) {
+            return self::commonError($response, $ex);
+        }
+    }
 }
