@@ -24,9 +24,9 @@ class BiddingsItemsController
      * @param Response $response
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll(Request $request, Response $response, $args): Response
     {
-        return BiddingsItemsModel::findAll($request, $response);
+        return BiddingsItemsModel::findAll($args, $request, $response);
     }
 
     /**

@@ -19,19 +19,25 @@ class BiddingsItemsModel extends AbstractModel
 {
 
     /**
-     * Returns all register
+     * @param array $args
+     * @param Request $request
      * @param Response $response
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll(array $args, Request $request, Response $response): Response
     {
         try {
-
             $paginator = paginator::buildAttributes($request, 'biddings_items');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(BiddingsItems::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            $criteria = [];
+            // search all by Biddings ID
+            if (isset($args['biddingId'])) {
+                $criteria = ['biddings' => $args['biddingId']];
+            }
+
+            $entity = $repository->findBy($criteria, ['number' => 'ASC'], $limit, $offset);
 
             return $response->withJson([
                     "message" => "",
@@ -255,10 +261,16 @@ class BiddingsItemsModel extends AbstractModel
     {
         return [
             'biddings' => function ($e) {
-                return $e->getBiddings()->getNumber() . '/' . $e->getBiddings()->getYear();
+                $obj = new \stdClass();
+                $obj->id = $e->getBiddings()->getId();
+                $obj->number = $e->getBiddings()->getNumber() . '/' . $e->getBiddings()->getYear();
+                return $obj;
             },
             'suppliers' => function ($e) {
-                return $e->getSuppliers()->getName();
+                $obj = new \stdClass();
+                $obj->id = $e->getSuppliers()->getId();
+                $obj->name = $e->getSuppliers()->getName();
+                return $obj;
             }
         ];
     }
