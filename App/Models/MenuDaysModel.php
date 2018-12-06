@@ -13,17 +13,19 @@ use App\Exceptions\PaginatorException;
 use App\Entities\MenuDays;
 use App\Entities\Menus;
 use App\Entities\Meals;
+use App\Entities\Recipes;
 
 class MenuDaysModel extends AbstractModel
 {
 
     /**
      * Returns all register
+     * @param array $args
      * @param Request $request The Resquest Object
      * @param Response $response The Response Object
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll(array $args, Request $request, Response $response): Response
     {
         try {
 
@@ -31,7 +33,21 @@ class MenuDaysModel extends AbstractModel
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(MenuDays::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            $recipesRepository = db::em()->getRepository(Recipes::class);
+
+            $queryBuild = $repository->createQueryBuilder('md')
+                ->innerJoin('md.meals', 'ml', 'WITH', 'ml.id = md.meals');
+
+            if (isset($args['menuId'])) {
+                $queryBuild = $queryBuild->where('md.menus = :menuId')
+                    ->setParameter(':menuId', $args['menuId']);
+            }
+
+            $entity = $queryBuild
+                ->orderBy('ml.sort')
+                ->getQuery()
+                ->getResult();
+
 
             return $response->withJson([
                     "message" => "",
@@ -46,8 +62,19 @@ class MenuDaysModel extends AbstractModel
                                 return $e->getDate()->format('Y-m-d');
                             },
                             'meal' => function ($e) {
-                                return $e->getMeals()->getName();
+                                $obj = new \stdClass();
+                                $obj->sort = $e->getMeals()->getSort();
+                                $obj->name = $e->getMeals()->getName();
+                                return $obj;
                             },
+                            'recipe' => function ($e) use ($recipesRepository) {
+                                $menuDayId = $e->getId();
+                                $recipe = $recipesRepository->findOneBy(['menuDays' => $menuDayId]);
+                                if ($recipe) {
+                                    return $recipe->getName();
+                                }
+                                return '';
+                            }
                             ], null, true)
                         ->run()
                     ], 200);

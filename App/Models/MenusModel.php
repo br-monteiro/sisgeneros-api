@@ -9,6 +9,7 @@ use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
+use App\Helpers\AuthenticationHelper as authentication;
 use App\Exceptions\PaginatorException;
 use App\Exceptions\AuthorizedMenuException;
 use App\Entities\Menus;
@@ -28,11 +29,15 @@ class MenusModel extends AbstractModel
     {
         try {
 
+            $userProfile = authentication::getUserProfile($request);
+
             $paginator = paginator::buildAttributes($request, 'menus');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
+            // select according the military that user is logged in
+            $where = ['militaryOrganizations' => $userProfile->militaryOrganizationId];
             $repository = db::em()->getRepository(Menus::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+            $entity = $repository->findBy($where, ['beginning' => 'ASC'], $limit, $offset);
 
             return $response->withJson([
                     "message" => "",
@@ -229,13 +234,24 @@ class MenusModel extends AbstractModel
                 return $e->getEnding()->format('Y-m-d');
             },
             'militaryOrganizations' => function($e) {
-                return $e->getMilitaryOrganizations()->getName();
+                $obj = new \stdClass();
+                $obj->id = $e->getMilitaryOrganizations()->getId();
+                $obj->name = $e->getMilitaryOrganizations()->getName();
+                return $obj;
             },
             'requesterUser' => function($e) {
-                return $e->getRequesterUser()->getFullName();
+                $obj = new \stdClass();
+                $obj->id = $e->getRequesterUser()->getId();
+                $obj->name = $e->getRequesterUser()->getFullName();
+                return $obj;
             },
             'authorizerUser' => function($e) {
-                return $e->getStatus() != 'created' ? $e->getAuthorizerUser()->getFullName() : '';
+                $obj = new \stdClass();
+                if ($e->getStatus() != 'created') {
+                    $obj->id = $e->getAuthorizerUser()->getId();
+                    $obj->name = $e->getAuthorizerUser()->getFullName();
+                }
+                return $obj;
             }
         ];
     }
