@@ -18,22 +18,22 @@ class BiddingsItemsRoute
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
-         $app->options('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}', function() {
-             header("Access-Control-Allow-Methods: GET, OPTIONS");
-         });
+        $app->options('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
 
-         $app->options('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}/search', function() {
-             header("Access-Control-Allow-Methods: GET, OPTIONS");
-         });
+        $app->options('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}/search', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
 
         $app->group('', function() {
                 $this->get('/api/v1/biddingsitems', BiddingsItemsController::class . ":findAll");
 
                 $this->get('/api/v1/biddingsitems/{id:[0-9]+}', BiddingsItemsController::class . ":find");
 
-                 $this->get('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}', BiddingsItemsController::class . ":findAll");
+                $this->get('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}', BiddingsItemsController::class . ":findAll");
 
-                 $this->get('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}/search', BiddingsItemsController::class . ":search");
+                $this->get('/api/v1/biddingsitems/bidding/{biddingId:[0-9]+}/search', BiddingsItemsController::class . ":search");
 
                 $this->post('/api/v1/biddingsitems', BiddingsItemsController::class . ":create");
 
