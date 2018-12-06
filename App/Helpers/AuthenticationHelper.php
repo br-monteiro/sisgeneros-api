@@ -32,4 +32,28 @@ class AuthenticationHelper
 
         return true;
     }
+
+    /**
+     * Returns the profile default from user token
+     * @param Request $request
+     * @return \stdClass
+     */
+    public static function getUserProfile(Request $request): \stdClass
+    {
+        $data = ValidateAuthentication::token($request);
+        $profiles = $data->data->profiles ?? [];
+
+        foreach ($profiles as $value) {
+            if (isset($data->data->id, $value->default) && $value->default == 'yes') {
+                $temp = $value;
+                // add the user ID on return
+                $temp->id = $data->data->id;
+                // remove unnecessary fileds
+                unset($temp->default, $temp->militaryOrganizationNavalIndicative);
+                return $temp;
+            }
+        }
+
+        return new \stdClass();
+    }
 }
