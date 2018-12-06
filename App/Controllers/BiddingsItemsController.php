@@ -4,6 +4,8 @@ namespace App\Controllers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use App\Models\BiddingsItemsModel;
+use App\Helpers\AccessHelper as access;
+use App\Exceptions\AccessDeniedException;
 
 class BiddingsItemsController
 {
@@ -16,7 +18,12 @@ class BiddingsItemsController
      */
     public static function find(Request $request, Response $response, $args): Response
     {
-        return BiddingsItemsModel::find($args['id'], $response);
+        try {
+            access::check($request, ['root']);
+            return BiddingsItemsModel::find($args['id'], $response);
+        } catch (AccessDeniedException $ex) {
+            return access::message($response, $ex);
+        }
     }
 
     /**
