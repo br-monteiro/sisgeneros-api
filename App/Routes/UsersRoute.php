@@ -10,56 +10,56 @@ class UsersRoute
 
     public static function setUp(App $app)
     {
-        $app->options('/api/v1/users', function() {
+        $app->options('/v1/users', function() {
             header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
         });
 
-        $app->options('/api/v1/users/{id:[0-9]+}', function() {
+        $app->options('/v1/users/{id:[0-9]+}', function() {
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
-        $app->options('/api/v1/users/autocomplete', function() {
+        $app->options('/v1/users/autocomplete', function() {
             header("Access-Control-Allow-Methods: GET, OPTIONS");
         });
 
-        $app->options('/api/v1/users/autocomplete/oms', function() {
+        $app->options('/v1/users/autocomplete/oms', function() {
             header("Access-Control-Allow-Methods: GET, OPTIONS");
         });
 
-        $app->options('/api/v1/users/{id:[0-9]+}/oms', function() {
+        $app->options('/v1/users/{id:[0-9]+}/oms', function() {
             header("Access-Control-Allow-Methods: GET, PUT, OPTIONS");
         });
 
-        $app->options('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms', function() {
+        $app->options('/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms', function() {
             header("Access-Control-Allow-Methods: DELETE, OPTIONS");
         });
 
-        $app->options('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms/changedefault', function() {
+        $app->options('/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms/changedefault', function() {
             header("Access-Control-Allow-Methods: PUT, OPTIONS");
         });
 
         $app->group('', function() {
-                $this->get('/api/v1/users', UsersController::class . ":findAll");
+                $this->get('/v1/users', UsersController::class . ":findAll");
 
-                $this->get('/api/v1/users/{id:[0-9]+}', UsersController::class . ":find");
+                $this->get('/v1/users/{id:[0-9]+}', UsersController::class . ":find");
 
-                $this->get('/api/v1/users/autocomplete', UsersController::class . ":autocomplete");
+                $this->get('/v1/users/autocomplete', UsersController::class . ":autocomplete");
 
-                $this->get('/api/v1/users/autocomplete/oms', UsersController::class . ":autocompleteOm");
+                $this->get('/v1/users/autocomplete/oms', UsersController::class . ":autocompleteOm");
 
-                $this->get('/api/v1/users/{id:[0-9]+}/oms', UsersController::class . ":allOmsFromUser");
+                $this->get('/v1/users/{id:[0-9]+}/oms', UsersController::class . ":allOmsFromUser");
 
-                $this->put('/api/v1/users/{id:[0-9]+}/oms', UsersController::class . ":saveProfile");
+                $this->put('/v1/users/{id:[0-9]+}/oms', UsersController::class . ":saveProfile");
 
-                $this->put('/api/v1/users/{id:[0-9]+}', UsersController::class . ":update");
+                $this->put('/v1/users/{id:[0-9]+}', UsersController::class . ":update");
 
-                $this->put('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms/changedefault', UsersController::class . ":changeDefault");
+                $this->put('/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms/changedefault', UsersController::class . ":changeDefault");
 
-                $this->post('/api/v1/users', UsersController::class . ":create");
+                $this->post('/v1/users', UsersController::class . ":create");
 
-                $this->delete('/api/v1/users/{id:[0-9]+}', UsersController::class . ":remove");
+                $this->delete('/v1/users/{id:[0-9]+}', UsersController::class . ":remove");
 
-                $this->delete('/api/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms', UsersController::class . ":removeProfile");
+                $this->delete('/v1/users/{userId:[0-9]+}/{omId:[0-9]+}/oms', UsersController::class . ":removeProfile");
             })
             ->add(AuthenticationMiddleware::class . ':verify');
     }

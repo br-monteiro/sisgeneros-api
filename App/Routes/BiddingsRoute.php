@@ -10,24 +10,24 @@ class BiddingsRoute
 
     public static function setUp(App $app)
     {
-        $app->options('/api/v1/biddings', function() {
+        $app->options('/v1/biddings', function() {
             header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
         });
 
-        $app->options('/api/v1/biddings/{id:[0-9]+}', function() {
+        $app->options('/v1/biddings/{id:[0-9]+}', function() {
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
         $app->group('', function() {
-                $this->get('/api/v1/biddings', BiddingsController::class . ":findAll");
+                $this->get('/v1/biddings', BiddingsController::class . ":findAll");
 
-                $this->get('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":find");
+                $this->get('/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":find");
 
-                $this->post('/api/v1/biddings', BiddingsController::class . ":create");
+                $this->post('/v1/biddings', BiddingsController::class . ":create");
 
-                $this->put('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":update");
+                $this->put('/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":update");
 
-                $this->delete('/api/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":remove");
+                $this->delete('/v1/biddings/{id:[0-9]+}', BiddingsController::class . ":remove");
             })
             ->add(AuthenticationMiddleware::class . ':verify');
     }
