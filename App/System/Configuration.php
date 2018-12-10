@@ -12,7 +12,7 @@ class Configuration
     // WARNING: CHANGE THIS CONTENT
     const SALT_KEY = 'F342B8D84BD071DBFAB4A01FD4E54A38C18082455B9BEDD023096F04AE5B';
     const PATH_ENTITIES = 'App/Entities';
-    const JSON_SCHEMA = '../App/json-schemes/';
+    const JSON_SCHEMA = '/home/edsonmonteiro/workspace/projects/sisgeneros/sisgeneros-api/App/json-schemes/';
     const EXPIRATE_TOKEN = 2592000; // 30 days
     const MAX_RESULTS = 50;
     const USER_ENTITY = Users::class;
@@ -25,7 +25,7 @@ class Configuration
         'Authorization'
     ];
     // Deployment
-    const HOST_DEV = 'dev.api.ceimbe.mb';
+    const HOST_DEV = 'www.ceimbe.mb';
     const DATABASE_CONFIGS_DEV = [
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
