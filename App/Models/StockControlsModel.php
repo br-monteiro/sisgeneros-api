@@ -41,6 +41,7 @@ class StockControlsModel extends AbstractModel
                     "allResults" => $paginator->allResults,
                     "limit" => $limit,
                     "offset" => $offset,
+                    "page" => $paginator->page,
                     "data" => self::outputValidate($entity)
                         ->withAttribute(self::buildCallbacks(), null, true)
                         ->run()
