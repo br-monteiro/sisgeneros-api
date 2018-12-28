@@ -9,9 +9,9 @@ class AuthRoute
 
     public static function setUp(App $app)
     {
-        $app->post('/api/v1/auth', AuthController::class . ":login");
+        $app->post('/v1/auth', AuthController::class . ":login");
 
-        $app->options('/api/v1/auth', function() {
+        $app->options('/v1/auth', function() {
             header("Access-Control-Allow-Methods: POST, OPTIONS");
         });
     }

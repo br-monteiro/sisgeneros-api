@@ -22,11 +22,12 @@ class MenuDaysController
     /**
      * @param Request $request
      * @param Response $response
+     * @param array $args
      * @return Response
      */
-    public static function findAll(Request $request, Response $response): Response
+    public static function findAll(Request $request, Response $response, $args): Response
     {
-        return MenuDaysModel::findAll($request, $response);
+        return MenuDaysModel::findAll($args, $request, $response);
     }
 
     /**

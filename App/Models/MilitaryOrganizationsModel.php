@@ -37,6 +37,7 @@ class MilitaryOrganizationsModel extends AbstractModel
                     "allResults" => $paginator->allResults,
                     "limit" => $limit,
                     "offset" => $offset,
+                    "page" => $paginator->page,
                     "data" => self::outputValidate($entity)
                         ->withoutAttribute([
                             'biddings',

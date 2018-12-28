@@ -10,30 +10,30 @@ class SuppliersRoute
 
     public static function setUp(App $app)
     {
-        $app->options('/api/v1/suppliers', function() {
+        $app->options('/v1/suppliers', function() {
             header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
         });
 
-        $app->options('/api/v1/suppliers/{id:[0-9]+}', function() {
+        $app->options('/v1/suppliers/{id:[0-9]+}', function() {
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
-        $app->options('/api/v1/suppliers/search', function() {
+        $app->options('/v1/suppliers/search', function() {
             header("Access-Control-Allow-Methods: GET, OPTIONS");
         });
 
         $app->group('', function() {
-                $this->get('/api/v1/suppliers', SuppliersController::class . ":findAll");
+                $this->get('/v1/suppliers', SuppliersController::class . ":findAll");
 
-                $this->get('/api/v1/suppliers/search', SuppliersController::class . ":findAll");
+                $this->get('/v1/suppliers/search', SuppliersController::class . ":findAll");
 
-                $this->get('/api/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":find");
+                $this->get('/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":find");
 
-                $this->post('/api/v1/suppliers', SuppliersController::class . ":create");
+                $this->post('/v1/suppliers', SuppliersController::class . ":create");
 
-                $this->put('/api/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":update");
+                $this->put('/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":update");
 
-                $this->delete('/api/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":remove");
+                $this->delete('/v1/suppliers/{id:[0-9]+}', SuppliersController::class . ":remove");
             })
             ->add(AuthenticationMiddleware::class . ':verify');
     }
