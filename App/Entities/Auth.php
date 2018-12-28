@@ -44,6 +44,13 @@ class Auth implements EntityInterface
     private $validate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="is_change", type="string", length=3, nullable=true)
+     */
+    private $isChange = 'no';
+
+    /**
      * @var \App\Entities\Users
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\Users")
@@ -73,6 +80,11 @@ class Auth implements EntityInterface
         return $this->validate;
     }
 
+    public function getIsChange()
+    {
+        return $this->isChange;
+    }
+
     public function getUsers()
     {
         return $this->users;
@@ -93,6 +105,12 @@ class Auth implements EntityInterface
     public function setValidate($validate)
     {
         $this->validate = $validate;
+        return $this;
+    }
+
+    public function setIsChange($isChange)
+    {
+        $this->isChange = $isChange;
         return $this;
     }
 
