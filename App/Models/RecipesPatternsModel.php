@@ -178,12 +178,12 @@ class RecipesPatternsModel extends AbstractModel
 
             // register items of Recipe
             if (isset($data->items)) {
-                $objItems = [];
-                foreach ($data->items as $i => $item) {
-                    $objItems[$i] = new RecipesPatternsItems();
-                    $objItems[$i]->setName($item->name);
-                    $objItems[$i]->setRecipesPatterns($entity);
-                    db::em()->persist($objItems[$i]);
+                foreach ($data->items as $item) {
+                    $obj = new RecipesPatternsItems();
+                    $obj->setName($item->name);
+                    $obj->setQuantity($item->quantity);
+                    $obj->setRecipesPatterns($entity);
+                    db::em()->persist($obj);
                     // flush transaction
                     db::em()->flush();
                 }
@@ -289,6 +289,7 @@ class RecipesPatternsModel extends AbstractModel
             }
 
             $entity->setName($data->name);
+            $entity->setQuantity($data->quantity);
 
             db::em()->flush();
 
@@ -366,7 +367,7 @@ class RecipesPatternsModel extends AbstractModel
 
     public static function getAllRecipesItems($entity)
     {
-        $query = "SELECT id, name FROM recipes_patterns_items AS rpi WHERE rpi.recipes_patterns_id = ?";
+        $query = "SELECT id, name, quantity FROM recipes_patterns_items AS rpi WHERE rpi.recipes_patterns_id = ?";
         $stmt = db::em()->getConnection()->prepare($query);
         $stmt->execute([$entity->getId()]);
         return $stmt->fetchAll(\PDO::FETCH_OBJ);

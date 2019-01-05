@@ -5,6 +5,12 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 100
+        },
+        "quantity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000000,
+            "exclusiveMaximum": true
         }
     },
     "required": ["name"]
