@@ -25,11 +25,25 @@ class RecipesPatternsModel extends AbstractModel
     {
         try {
 
+            $query = $request->getParam('query');
+
             $paginator = paginator::buildAttributes($request, 'recipes_patterns');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
             $repository = db::em()->getRepository(RecipesPatterns::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+
+            if ($query) {
+                $entity = $repository->createQueryBuilder('rp')
+                    ->where('rp.name LIKE :term')
+                    ->setParameter('term', '%' . $query . '%')
+                    ->setFirstResult($offset)
+                    ->setMaxResults($limit)
+                    ->orderBy('rp.name')
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $entity = $repository->findBy([], null, $limit, $offset);
+            }
 
             return $response->withJson([
                     "message" => "",
