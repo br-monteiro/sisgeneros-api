@@ -14,7 +14,12 @@
         "date": {
             "type": "string",
             "pattern": "^20[12][0-9]-[01][0-2]-[0-3][0-9]$"
+        },
+        "quantityPeople": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999
         }
     },
-    "required": ["menusId", "mealsId", "date"]
+    "required": ["menusId", "mealsId", "date", "quantityPeople"]
 }

@@ -30,6 +30,13 @@ class MenuDays implements EntityInterface
     private $date;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="quantity_people", type="integer", nullable=false)
+     */
+    private $quantityPeople = '1';
+
+    /**
      * @var \App\Entities\Meals
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\Meals")
@@ -59,6 +66,11 @@ class MenuDays implements EntityInterface
         return $this->date;
     }
 
+    public function getQuantityPeople()
+    {
+        return $this->quantityPeople;
+    }
+
     public function getMeals()
     {
         return $this->meals;
@@ -72,6 +84,12 @@ class MenuDays implements EntityInterface
     public function setDate($date)
     {
         $this->date = $date;
+        return $this;
+    }
+
+    public function setQuantityPeople($quantityPeople)
+    {
+        $this->quantityPeople = $quantityPeople;
         return $this;
     }
 
