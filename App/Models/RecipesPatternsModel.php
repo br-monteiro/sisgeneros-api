@@ -87,7 +87,10 @@ class RecipesPatternsModel extends AbstractModel
                 ->getResult();
 
             $values = self::outputValidate($entity)
-                ->withoutAttribute(['recipesPatterns', 'id'])
+                ->withoutAttribute('id')
+                ->withAttribute('recipesPatterns', function ($e) {
+                    return $e->getRecipesPatterns()->getId();
+                }, true)
                 ->run();
 
             return $response->withJson([
@@ -422,8 +425,13 @@ class RecipesPatternsModel extends AbstractModel
         $result = [];
         foreach ($values as $value) {
             if (isset($result[$value->name])) {
+                if (!isset($result[$value->name]->recipesIds[$value->recipesPatterns])) {
+                    $result[$value->name]->recipesIds[] = $value->recipesPatterns;
+                }
                 $result[$value->name]->quantity += $value->quantity;
             } else {
+                $value->recipesIds = [$value->recipesPatterns];
+                unset($value->recipesPatterns);
                 $result[$value->name] = $value;
             }
         }
