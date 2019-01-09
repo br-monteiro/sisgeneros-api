@@ -435,6 +435,6 @@ class RecipesPatternsModel extends AbstractModel
                 $result[$value->name] = $value;
             }
         }
-        return $result;
+        return array_values($result);
     }
 }
