@@ -13,6 +13,9 @@ use App\Exceptions\InvalidIdentificationsException;
 use App\Entities\RecipesPatterns;
 use App\Entities\RecipesPatternsItems;
 use App\Entities\MilitaryOrganizations;
+use App\Models\StockMilitaryOrganizationsModel;
+use App\Models\StockSabmModel;
+use App\Models\BiddingsItemsModel;
 
 class RecipesPatternsModel extends AbstractModel
 {
@@ -92,11 +95,15 @@ class RecipesPatternsModel extends AbstractModel
                     return $e->getRecipesPatterns()->getId();
                 }, true)
                 ->run();
+                
+            $values = self::buildResult($values);
+                
+            $values = self::fetchStocks($request, $values);
 
             return $response->withJson([
                     "message" => "",
                     "status" => "success",
-                    "data" => self::buildResult($values)
+                    "data" => $values
                     ], 200);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
@@ -436,5 +443,29 @@ class RecipesPatternsModel extends AbstractModel
             }
         }
         return array_values($result);
+    }
+
+    private static function fetchStocks(Request $request, array $values)
+    {
+        $omId = $request->getParam('omId');
+        foreach ($values as $value) {
+            $entityStockOm = StockMilitaryOrganizationsModel::rawEntitiesResultByMilitaryOrganizationsId($omId, $value->name);
+            $value->stockOm = self::outputValidate($entityStockOm)->withoutAttribute('militaryOrganizations')->run()[0];
+
+            $entityStockOmCeim = StockMilitaryOrganizationsModel::rawEntitiesResultByMilitaryOrganizationsId(null, $value->name, 'yes');
+            $value->stockCeim = self::outputValidate($entityStockOmCeim)->withoutAttribute('militaryOrganizations')->run()[0];
+            
+            $entityStockSabm = StockSabmModel::rawEntitiesByItemName($value->name);
+            $value->stockSabm = self::outputValidate($entityStockSabm)->withoutAttribute('militaryOrganizations')->run()[0];
+            
+            $entityBiddings = BiddingsItemsModel::rawEntitiesByItemName($value->name);
+            $value->biddingsItems = self::outputValidate($entityBiddings)->withoutAttribute(['biddings', 'suppliers'])->run();
+            
+            $obj = new \stdClass();
+            $obj->available = false;
+            $obj->informed = '';
+            $value->notBiddingsItems = $obj;
+        }
+        return $values;
     }
 }

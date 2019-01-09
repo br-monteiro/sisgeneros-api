@@ -64,38 +64,7 @@ class StockMilitaryOrganizationsModel extends AbstractModel
             $itemName = $request->getParam('itemName');
             $ceim = $request->getParam('ceim') === 'yes';
 
-            $repository = db::em()->getRepository(StockMilitaryOrganizations::class);
-
-            // URI /sisgeneros/api/v1/stockmilitaryorganizations/om/2?itemName=outro
-            if ($omId && $itemName && !$ceim) {
-                $entity = $repository->createQueryBuilder('smo')
-                    ->where('smo.militaryOrganizations = :omId')
-                    ->andWhere('smo.name = :itemName')
-                    ->setParameter('omId', $omId)
-                    ->setParameter('itemName', $itemName)
-                    ->orderBy('smo.name')
-                    ->getQuery()
-                    ->getResult();
-            // URI /sisgeneros/api/v1/stockmilitaryorganizations/om?itemName=outro&ceim=yes
-            } elseif (!$omId && $itemName && $ceim) {
-                $entity = $repository->createQueryBuilder('smo')
-                    ->innerJoin('smo.militaryOrganizations', 'mo', 'WITH', 'mo.isCeim = :ceim')
-                    ->where('smo.name = :itemName')
-                    ->setParameter('itemName', $itemName)
-                    ->setParameter('ceim', 'yes')
-                    ->orderBy('smo.name')
-                    ->getQuery()
-                    ->getResult();
-            // URI /sisgeneros/api/v1/stockmilitaryorganizations/om/1
-            } elseif ($omId && !$itemName && !$ceim) {
-                $entity = $repository->findBy(['militaryOrganizations' => $omId]);
-            } else {
-                return $response
-                        ->withJson([
-                            "message" => "Route not found",
-                            "status" => "error"
-                            ], 404);
-            }
+            $entity = self::rawEntitiesResultByMilitaryOrganizationsId($omId, $itemName, $ceim);
 
             return $response->withJson([
                     "message" => "",
@@ -324,5 +293,46 @@ class StockMilitaryOrganizationsModel extends AbstractModel
         if ($stmt->rowCount() > 0) {
             throw new DoubleRegistrationException("A record with this data already exists");
         }
+    }
+
+    /**
+     * 
+     * @param int $omId
+     * @param string $itemName
+     * @param string $ceim
+     * @return StockMilitaryOrganizations
+     * @throws ORMException
+     */
+    public static function rawEntitiesResultByMilitaryOrganizationsId($omId = null, $itemName = null, $ceim = null)
+    {
+        $repository = db::em()->getRepository(StockMilitaryOrganizations::class);
+
+        // URI /sisgeneros/api/v1/stockmilitaryorganizations/om/2?itemName=outro
+        if ($omId && $itemName && !$ceim) {
+            $entity = $repository->createQueryBuilder('smo')
+                ->where('smo.militaryOrganizations = :omId')
+                ->andWhere('smo.name = :itemName')
+                ->setParameter('omId', $omId)
+                ->setParameter('itemName', $itemName)
+                ->orderBy('smo.name')
+                ->getQuery()
+                ->getResult();
+            // URI /sisgeneros/api/v1/stockmilitaryorganizations/om?itemName=outro&ceim=yes
+        } elseif (!$omId && $itemName && $ceim) {
+            $entity = $repository->createQueryBuilder('smo')
+                ->innerJoin('smo.militaryOrganizations', 'mo', 'WITH', 'mo.isCeim = :ceim')
+                ->where('smo.name = :itemName')
+                ->setParameter('itemName', $itemName)
+                ->setParameter('ceim', 'yes')
+                ->orderBy('smo.name')
+                ->getQuery()
+                ->getResult();
+            // URI /sisgeneros/api/v1/stockmilitaryorganizations/om/1
+        } elseif ($omId && !$itemName && !$ceim) {
+            $entity = $repository->findBy(['militaryOrganizations' => $omId]);
+        } else {
+            throw new ORMException('Invalid arguments to search OM Stock');
+        }
+        return $entity;
     }
 }
