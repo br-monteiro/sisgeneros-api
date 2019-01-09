@@ -9,6 +9,7 @@ use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Exceptions\PaginatorException;
+use App\Exceptions\InvalidIdentificationsException;
 use App\Entities\RecipesPatterns;
 use App\Entities\RecipesPatternsItems;
 use App\Entities\MilitaryOrganizations;
@@ -68,21 +69,35 @@ class RecipesPatternsModel extends AbstractModel
      * @param Response $response
      * @return Response
      */
-    public static function findAllRecipesItemsByRecipesId(Request $request, Response $response, int $recipesId): Response
+    public static function findAllRecipesItemsByRecipesId(Request $request, Response $response): Response
     {
         try {
+            $recipesId = $request->getParam('ids') ?? $request->getAttribute('id');
+
+            if (!$recipesId) {
+                throw new InvalidIdentificationsException("Invalid identifications");
+            }
+
 
             $repository = db::em()->getRepository(RecipesPatternsItems::class);
-            $entity = $repository->findBy(['recipesPatterns' => $recipesId]);
+            $entity = $repository->createQueryBuilder('rp')
+                ->where('rp.id IN (' . self::buildIds($recipesId) . ')')
+                ->orderBy('rp.name')
+                ->getQuery()
+                ->getResult();
+
+            $values = self::outputValidate($entity)
+                ->withoutAttribute(['recipesPatterns', 'id'])
+                ->run();
 
             return $response->withJson([
                     "message" => "",
                     "status" => "success",
-                    "data" => self::outputValidate($entity)
-                        ->withoutAttribute('recipesPatterns')
-                        ->run()
+                    "data" => self::buildResult($values)
                     ], 200);
         } catch (ORMException $ex) {
+            return self::commonError($response, $ex);
+        } catch (InvalidIdentificationsException $ex) {
             return self::commonError($response, $ex);
         }
     }
@@ -385,5 +400,33 @@ class RecipesPatternsModel extends AbstractModel
         $stmt = db::em()->getConnection()->prepare($query);
         $stmt->execute([$entity->getId()]);
         return $stmt->fetchAll(\PDO::FETCH_OBJ);
+    }
+
+    private static function buildIds($ids): string
+    {
+        $result = [];
+        if ($ids) {
+            $explodedIds = explode(",", $ids);
+            foreach ($explodedIds as $id) {
+                $processedId = intval($id);
+                if ($processedId > 0) {
+                    $result[] = $processedId;
+                }
+            }
+        }
+        return implode(",", $result);
+    }
+
+    private static function buildResult(array $values): array
+    {
+        $result = [];
+        foreach ($values as $value) {
+            if (isset($result[$value->name])) {
+                $result[$value->name]->quantity += $value->quantity;
+            } else {
+                $result[$value->name] = $value;
+            }
+        }
+        return $result;
     }
 }

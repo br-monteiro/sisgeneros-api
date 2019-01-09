@@ -18,6 +18,10 @@ class RecipesPatternsRoute
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
+        $app->options('/v1/recipespatterns/items', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
+
         $app->options('/v1/recipespatterns/items/{id:[0-9]+}', function() {
             header("Access-Control-Allow-Methods: GET, OPTIONS");
         });
@@ -30,6 +34,8 @@ class RecipesPatternsRoute
                 $this->get('/v1/recipespatterns', RecipesPatternsController::class . ":findAll");
 
                 $this->get('/v1/recipespatterns/{id:[0-9]+}', RecipesPatternsController::class . ":find");
+
+                $this->get('/v1/recipespatterns/items', RecipesPatternsController::class . ":findAllRecipesItemsByRecipesId");
 
                 $this->get('/v1/recipespatterns/items/{id:[0-9]+}', RecipesPatternsController::class . ":findAllRecipesItemsByRecipesId");
 
