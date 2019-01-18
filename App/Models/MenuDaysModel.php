@@ -152,6 +152,7 @@ class MenuDaysModel extends AbstractModel
 
             $entity = new MenuDays();
             $entity->setDate(new \DateTime($data->date));
+            $entity->setQuantityPeople($data->quantityPeople);
             $entity->setMenus($menus);
             $entity->setMeals($meals);
 
@@ -221,6 +222,7 @@ class MenuDaysModel extends AbstractModel
             $meals = db::em()->getRepository(Meals::class)->find($data->mealsId);
 
             $entity->setDate(new \DateTime($data->date));
+            $entity->setQuantityPeople($data->quantityPeople);
             $entity->setMenus($menus);
             $entity->setMeals($meals);
 

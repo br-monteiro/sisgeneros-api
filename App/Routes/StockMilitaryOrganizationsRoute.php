@@ -18,8 +18,14 @@ class StockMilitaryOrganizationsRoute
             header("Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS");
         });
 
+        $app->options('/v1/stockmilitaryorganizations/om[/{omId:[0-9]+}]', function() {
+            header("Access-Control-Allow-Methods: GET, OPTIONS");
+        });
+
         $app->group('', function() {
                 $this->get('/v1/stockmilitaryorganizations', StockMilitaryOrganizationsController::class . ":findAll");
+
+                $this->get('/v1/stockmilitaryorganizations/om[/{omId:[0-9]+}]', StockMilitaryOrganizationsController::class . ":findAllByMilitaryOrganizationsId");
 
                 $this->get('/v1/stockmilitaryorganizations/{id:[0-9]+}', StockMilitaryOrganizationsController::class . ":find");
 

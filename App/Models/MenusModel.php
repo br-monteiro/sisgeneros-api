@@ -7,11 +7,12 @@ use HTR\Common\Json;
 use Slim\Http\Response;
 use Slim\Http\Request;
 use Doctrine\ORM\ORMException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use App\Helpers\PaginatorHelper as paginator;
 use App\Helpers\AuthenticationHelper as authentication;
 use App\Exceptions\PaginatorException;
 use App\Exceptions\AuthorizedMenuException;
+use App\Exceptions\InvalidRangeDateException;
+use App\Exceptions\DoubleRegistrationException;
 use App\Entities\Menus;
 use App\Entities\MilitaryOrganizations;
 use App\Entities\Users;
@@ -112,6 +113,8 @@ class MenusModel extends AbstractModel
 
             $entity = self::buildEntityValues(new Menus(), $data);
 
+            self::checkDoubleRegistration($entity);
+
             db::em()->persist($entity);
             // flush transaction
             db::em()->flush();
@@ -125,10 +128,15 @@ class MenusModel extends AbstractModel
                     ], 201);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
+        } catch (InvalidRangeDateException $ex) {
             return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
+                    "message" => $ex->getMessage(),
                     "status" => "warning"
+                    ], 400);
+        } catch (DoubleRegistrationException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getMessage(),
+                    "status" => "error"
                     ], 400);
         }
     }
@@ -142,6 +150,7 @@ class MenusModel extends AbstractModel
      */
     public static function update(int $id, Request $request, Response $response): Response
     {
+        return $response;
         $data = (object) $request->getParsedBody() ?? [];
 
         try {
@@ -178,15 +187,20 @@ class MenusModel extends AbstractModel
                     ], 200);
         } catch (ORMException $ex) {
             return self::commonError($response, $ex);
-        } catch (UniqueConstraintViolationException $ex) {
-            return $response->withJson([
-                    "message" => $ex->getPrevious()->getMessage(),
-                    "status" => "warning"
-                    ], 400);
         } catch (AuthorizedMenuException $ex) {
             return $response->withJson([
                     "message" => $ex->getMessage(),
                     "status" => "warning"
+                    ], 400);
+        } catch (InvalidRangeDateException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getMessage(),
+                    "status" => "warning"
+                    ], 400);
+        } catch (DoubleRegistrationException $ex) {
+            return $response->withJson([
+                    "message" => $ex->getMessage(),
+                    "status" => "error"
                     ], 400);
         }
     }
@@ -266,7 +280,13 @@ class MenusModel extends AbstractModel
     private static function buildEntityValues(Menus $entity, \stdClass $data): Menus
     {
         if ($entity->getStatus() == 'authorized') {
-            throw new AuthorizedMenuException("This menu has been authorized.");
+            throw new AuthorizedMenuException("This menu has been authorized");
+        }
+        // validate the range of date
+        $beginning = new \DateTime($data->beginning);
+        $ending = new \DateTime($data->ending);
+        if (($ending->getTimestamp() - $beginning->getTimestamp()) !== 518400) {
+            throw new InvalidRangeDateException("The start date and end date should be one week");
         }
         // users
         $repositoryUsers = db::em()->getRepository(Users::class);
@@ -294,9 +314,29 @@ class MenusModel extends AbstractModel
         $entity->setRequesterUser($requesterUser);
         $entity->setAuthorizerUser($authorizerUser);
         $entity->setStatus($status);
-        $entity->setBeginning(new \DateTime($data->beginning));
-        $entity->setEnding(new \DateTime($data->ending));
+        $entity->setBeginning($beginning);
+        $entity->setEnding($ending);
         // return
         return $entity;
+    }
+
+    /**
+     * Checks if there is a record with the same data
+     * @param Menus $entity
+     * @throws DoubleRegistrationException
+     */
+    private static function checkDoubleRegistration(Menus $entity)
+    {
+        $menuRepository = db::em()
+            ->getRepository(Menus::class)
+            ->findBy([
+            'militaryOrganizations' => $entity->getMilitaryOrganizations(),
+            'beginning' => $entity->getBeginning(),
+            'ending' => $entity->getEnding()
+        ]);
+
+        if ($menuRepository) {
+            throw new DoubleRegistrationException("A record with this data already exists");
+        }
     }
 }

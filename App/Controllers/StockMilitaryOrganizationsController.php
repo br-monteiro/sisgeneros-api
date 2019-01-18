@@ -34,6 +34,16 @@ class StockMilitaryOrganizationsController
      * @param Response $response
      * @return Response
      */
+    public static function findAllByMilitaryOrganizationsId(Request $request, Response $response): Response
+    {
+        return StockMilitaryOrganizationsModel::findAllByMilitaryOrganizationsId($request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public static function create(Request $request, Response $response): Response
     {
         return StockMilitaryOrganizationsModel::create($request, $response);

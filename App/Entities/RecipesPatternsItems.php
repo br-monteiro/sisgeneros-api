@@ -30,6 +30,13 @@ class RecipesPatternsItems implements EntityInterface
     private $name;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="quantity", type="float", precision=9, scale=2, nullable=false)
+     */
+    private $quantity;
+
+    /**
      * @var \App\Entities\RecipesPatterns
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\RecipesPatterns")
@@ -49,6 +56,11 @@ class RecipesPatternsItems implements EntityInterface
         return $this->name;
     }
 
+    public function getQuantity()
+    {
+        return $this->quantity;
+    }
+
     public function getRecipesPatterns()
     {
         return $this->recipesPatterns;
@@ -57,6 +69,12 @@ class RecipesPatternsItems implements EntityInterface
     public function setName($name)
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function setQuantity($quantity)
+    {
+        $this->quantity = $quantity;
         return $this;
     }
 

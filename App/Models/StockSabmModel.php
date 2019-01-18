@@ -30,8 +30,8 @@ class StockSabmModel extends AbstractModel
             $paginator = paginator::buildAttributes($request, 'stock_sabm');
             $limit = $paginator->limit;
             $offset = $paginator->offset;
-            $repository = db::em()->getRepository(StockSabm::class);
-            $entity = $repository->findBy([], null, $limit, $offset);
+
+            $entity = self::rawEntitiesByItemName(null, $limit, $offset);
 
             return $response->withJson([
                     "message" => "",
@@ -262,5 +262,22 @@ class StockSabmModel extends AbstractModel
         if ($stmt->rowCount() > 0) {
             throw new DoubleRegistrationException("A record with this data already exists");
         }
+    }
+
+    /**
+     * 
+     * @param string $itemName
+     * @param int $limit
+     * @param int $offset
+     * @return StockSabm
+     */
+    public static function rawEntitiesByItemName($itemName = null, $limit = null, $offset = null)
+    {
+        $where = [];
+        if ($itemName) {
+            $where = ['name' => $itemName];
+        }
+        $repository = db::em()->getRepository(StockSabm::class);
+        return $repository->findBy($where, null, $limit, $offset);
     }
 }

@@ -355,4 +355,20 @@ class BiddingsItemsModel extends AbstractModel
             return self::commonError($response, $ex);
         }
     }
+
+    public static function rawEntitiesByItemName(string $itemName)
+    {
+        $repository = db::em()->getRepository(BiddingsItems::class);
+        $date = new \DateTime('now');
+
+        return $repository->createQueryBuilder('bitem')
+            ->innerJoin('bitem.biddings', 'bd')
+            ->where('bitem.name = :name')
+            ->andWhere('bd.validate >= :date')
+            ->setParameter('name', $itemName)
+            ->setParameter('date', $date)
+            ->add('orderBy', 'bd.number ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
