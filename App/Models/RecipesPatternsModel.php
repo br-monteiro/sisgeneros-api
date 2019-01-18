@@ -84,7 +84,7 @@ class RecipesPatternsModel extends AbstractModel
 
             $repository = db::em()->getRepository(RecipesPatternsItems::class);
             $entity = $repository->createQueryBuilder('rp')
-                ->where('rp.id IN (' . self::buildIds($recipesId) . ')')
+                ->where('rp.recipesPatterns IN (' . self::buildIds($recipesId) . ')')
                 ->orderBy('rp.name')
                 ->getQuery()
                 ->getResult();
@@ -95,9 +95,9 @@ class RecipesPatternsModel extends AbstractModel
                     return $e->getRecipesPatterns()->getId();
                 }, true)
                 ->run();
-                
+
             $values = self::buildResult($values);
-                
+
             $values = self::fetchStocks($request, $values);
 
             return $response->withJson([
@@ -447,24 +447,45 @@ class RecipesPatternsModel extends AbstractModel
 
     private static function fetchStocks(Request $request, array $values)
     {
-        $omId = $request->getParam('omId');
+        $omId = $request->getParam('omId', 1);
+        $extrasAttributes = [
+            "available" => false,
+            "informed" => ""
+        ];
         foreach ($values as $value) {
             $entityStockOm = StockMilitaryOrganizationsModel::rawEntitiesResultByMilitaryOrganizationsId($omId, $value->name);
-            $value->stockOm = self::outputValidate($entityStockOm)->withoutAttribute('militaryOrganizations')->run()[0];
+            $value->stockOm = self::outputValidate($entityStockOm)
+                ->withoutAttribute('militaryOrganizations')
+                ->withAttribute($extrasAttributes, null, true)
+                ->run()[0];
 
             $entityStockOmCeim = StockMilitaryOrganizationsModel::rawEntitiesResultByMilitaryOrganizationsId(null, $value->name, 'yes');
-            $value->stockCeim = self::outputValidate($entityStockOmCeim)->withoutAttribute('militaryOrganizations')->run()[0];
-            
+            $value->stockCeim = self::outputValidate($entityStockOmCeim)
+                ->withoutAttribute('militaryOrganizations')
+                ->withAttribute($extrasAttributes, null, true)
+                ->run()[0];
+
             $entityStockSabm = StockSabmModel::rawEntitiesByItemName($value->name);
-            $value->stockSabm = self::outputValidate($entityStockSabm)->withoutAttribute('militaryOrganizations')->run()[0];
-            
+            $value->stockSabm = self::outputValidate($entityStockSabm)
+                ->withoutAttribute('militaryOrganizations')
+                ->withAttribute($extrasAttributes, null, true)
+                ->run()[0];
+
             $entityBiddings = BiddingsItemsModel::rawEntitiesByItemName($value->name);
-            $value->biddingsItems = self::outputValidate($entityBiddings)->withoutAttribute(['biddings', 'suppliers'])->run();
-            
-            $obj = new \stdClass();
-            $obj->available = false;
-            $obj->informed = '';
-            $value->notBiddingsItems = $obj;
+            $biddingsItems = self::outputValidate($entityBiddings)
+                ->withoutAttribute(['biddings', 'suppliers'])
+                ->run();
+            $value->biddingsItems = array_reduce($biddingsItems, function($acc, $item) {
+                if (!isset($acc->quantity)) {
+                    $acc->quantity = 0;
+                }
+                if (isset($item->currentQuantity) && $item->currentQuantity) {
+                    $acc->quantity += $item->currentQuantity;
+                }
+                return $acc;
+            }, (object) $extrasAttributes);
+
+            $value->notBiddingsItems = (object) $extrasAttributes;
         }
         return $values;
     }
